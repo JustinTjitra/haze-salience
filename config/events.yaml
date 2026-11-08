@@ -1,0 +1,21 @@
+# Hand-coded attention events. Dates are local (SGT) calendar dates; the pilot maps each to
+# the first SGX trading day on or after it. Add events here as they are found (H3 uses them).
+events:
+  - id: greenpeace_2026
+    date: 2026-10-05
+    kind: ngo_report
+    label: Greenpeace report
+    description: Greenpeace links First Resources and Bumitama Agri to concessions with detected fires.
+    source: https://drwealth.com/?p=146214552
+  - id: psi_unhealthy_2026
+    date: 2026-10-13
+    kind: salience
+    label: PSI unhealthy run
+    description: Singapore 24-hour PSI in the unhealthy range, part of a 12-day run (approximate start; confirm against NEA data).
+    source: https://asianews.network/?p=308529
+  - id: pm_statement_2026
+    date: 2026-10-16
+    kind: government
+    label: PM statement
+    description: PM Lawrence Wong says Singapore is looking into which firms are responsible.
+    source: https://longbridge.com/en/news/302043938

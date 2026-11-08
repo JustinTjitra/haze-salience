@@ -1,0 +1,44 @@
+[project]
+name = "haze-salience"
+version = "0.1.0"
+description = "Does satellite fire data reach palm oil stock prices immediately, or only once haze makes it salient?"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.26",
+    "pandas>=2.2",
+    "pyarrow>=15",
+    "statsmodels>=0.14",
+    "matplotlib>=3.8",
+    "pyyaml>=6",
+    "yfinance>=0.2.40",
+]
+
+[project.optional-dependencies]
+# Stage 2 only: spatial join of FIRMS hotspots onto concession polygons, panel regressions.
+spatial = ["geopandas>=1.0", "shapely>=2.0", "linearmodels>=6.0"]
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.scripts]
+haze-salience = "haze_salience.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/haze_salience"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "NPY"]

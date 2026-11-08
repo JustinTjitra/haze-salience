@@ -1,0 +1,16 @@
+# Data: never commit raw or derived data (licensing). See docs/data_manifest.md.
+data/**
+!data/**/
+!data/README.md
+!data/**/.gitkeep
+
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+.ipynb_checkpoints/
+.DS_Store

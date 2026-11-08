@@ -1,0 +1,33 @@
+# Stage 1 pilot universe: SGX-listed palm oil groups.
+# verify: true means listing status and ticker have not been checked against SGX yet.
+# Do that before trusting the pilot. IDX names are added for Stage 2 (see docs/design.md).
+market_index:
+  name: Straits Times Index
+  ticker: "^STI"
+
+firms:
+  - name: First Resources
+    ticker: EB5.SI
+    exchange: SGX
+    greenpeace_named_2026: true
+    verify: true
+  - name: Bumitama Agri
+    ticker: P8Z.SI
+    exchange: SGX
+    greenpeace_named_2026: true
+    verify: true
+  - name: Golden Agri-Resources
+    ticker: E5H.SI
+    exchange: SGX
+    greenpeace_named_2026: false
+    verify: true
+  - name: Wilmar International
+    ticker: F34.SI
+    exchange: SGX
+    greenpeace_named_2026: false
+    verify: true
+  - name: Indofood Agri Resources
+    ticker: 5JS.SI
+    exchange: SGX
+    greenpeace_named_2026: false
+    verify: true   # possible exit offer / delisting; check first

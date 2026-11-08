@@ -1,0 +1,17 @@
+# Stage 1 pilot parameters (docs/superpowers/specs/2026-11-08-haze-salience-repo-design.md).
+events: [greenpeace_2026, pm_statement_2026]
+
+# Trading-day offsets relative to day 0 (first SGX trading day on or after the event date).
+estimation_window: [-150, -31]   # 120 days ending 30 days before the event
+event_window: [-10, 10]
+min_estimation_days: 100
+
+# Price history to fetch (covers the estimation windows with margin).
+fetch_start: 2025-12-01
+fetch_end: 2026-11-07
+
+cpo:
+  manual_csv: data/raw/manual/fcpo.csv   # Bursa FCPO daily; see docs/data_manifest.md
+  fallback_ticker: ZL=F                  # CBOT soybean oil, used only if the CSV is missing
+
+figure: outputs/figures/pilot_car.png
