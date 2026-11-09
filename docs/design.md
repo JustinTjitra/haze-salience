@@ -105,38 +105,7 @@ The spatial join is the only geospatial step. Everything downstream is ordinary 
 
 **Stack:** Python, using geopandas and shapely for the spatial join, pandas for the panel, statsmodels and linearmodels for the regressions, and matplotlib for the figures. Use Python rather than R even though STAT 4220 uses R: quant firms expect Python fluency, and this project is how you show it. Keep the code in a new folder of the influence networks repo, or its own repo, with a README that reproduces the pilot plot in one command.
 
-## Milestones and timeline
-
-The plan puts a pilot result in hand by late November and a full panel result by 28 January, three days before the FTTP New York deadline.
-
-&#91;embedded content: milestones · November 2026 to March 2027\]
-
-The go/no-go on 29 November is the key gate. If the pilot shows no reaction to either event, rescope to the regulatory-event story before investing in the four-season panel. The wind instrument runs after the deadline, so it becomes a talking point if you are admitted. Dates assume finals take most of mid-December; adjust once your exam schedule is set.
-
-## Positioning for FTTP and other pre-internship quant programs
-
-This project helps, but it will not be what gets you into FTTP. First-year programs screen mostly on your resume and a short motivation, and later quant rounds test probability, mental math and market-making games. The project's job is to give you one sharp, numerate story to tell. Your informatics and economics olympiad results are likely a stronger screening signal than any first-year project.
-
-**Programs open to you this cycle (verify each page before applying):**
-
-| Program | Who | When | Apply by |
-| --- | --- | --- | --- |
-| [Jane Street FTTP, New York](https://www.janestreet.com/fttp-nyc-email.html) | First-year undergraduates, STEM-leaning | 21 to 25 March 2027 | 31 January 2027 |
-| [Jane Street FTTP, London](https://quantvault.org/quant-early-insight-programs-2027.html) | First-year undergraduates | March to April 2027 | 3 January 2027 |
-| [Jane Street Bridge](https://ep-advisory.com/?p=38454) | First- and second-years; Strategy and Product or Institutional Sales and Trading tracks | 1 to 3 April 2027 | 3 January 2027 |
-| [SIG virtual intro to quant trading](https://quantvault.org/quant-early-insight-programs-2027.html) | High school, first- and second-year students | December 2026 and May 2027 | Check page |
-
-**Programs to target next year** (most are aimed at sophomores, or at classes graduating before yours): Optiver FutureFocus, IMC Launchpad, Explore HRT, and Citadel Securities Discover. See the [Extern 2028 guide](https://www.extern.com/post/quant-internships-summer-2028-guide) and the [IMC Launchpad posting](https://www.imc.com/us/careers/jobs/4781344101). Strong performance at some of these can lead to an accelerated internship process.
-
-**How to frame the project for quant firms.** Talk about signal, latency and edge, not sustainability. The quant version of the pitch: "I built an alternative-data signal from satellite fire detections and tested whether markets price it immediately or only once it becomes salient." Keep the impact and IVSB framing for the Wharton transfer application, where it fits better.
-
-**Resume line template** (fill in the brackets only with real results):
-
-- Built a Python pipeline linking \[N\] NASA satellite fire detections to \[N\] SGX/IDX palm oil firms' concessions; found fire exposure predicts \[X\] bp abnormal returns over \[K\] days, concentrated on high-haze days
-
-**What else to do before 31 January:** daily probability and expected-value practice, a few rounds of market-making games with friends, and fluent Python with pandas. Those carry more weight in later rounds than the project does.
-
-## Literature and references
+re and references
 
 **Core papers this project builds on**
 
