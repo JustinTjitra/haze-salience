@@ -1,4 +1,4 @@
-# haze-salience
+# WIP - haze-salience
 
 **Does public, satellite-observable fire information reach palm oil stock prices immediately, or only
 once haze makes it salient to investors?**
