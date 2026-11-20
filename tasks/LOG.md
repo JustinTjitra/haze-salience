@@ -3,6 +3,40 @@
 Newest entry first. One entry per run of the loop: date and time (UTC), tasks finished (with commit
 hashes), tasks blocked and why, and what the owner needs to do.
 
+## 2026-11-20 17:01 UTC run 7
+
+- Health check before changes: `make test` (109 passed) and `make lint` green.
+- Done, one at a time as the protocol now says: T203 Season abnormal returns (`d428e6f`, sonnet),
+  T204 Returns builder per exchange (`abbf545`, sonnet), T206 Events schema validator (`0684652`,
+  haiku). All first pass, no brief repairs. Suite is now 174 tests.
+- T204 is a refactor of `run_pilot`. Besides the coder's before/after comparison on synthetic
+  data, the planner re-ran `run_pilot` on the cached real prices from run 6 and the summary is
+  byte-identical to the committed `outputs/figures/pilot_car_summary.csv`. Nothing under
+  `outputs/` was rewritten.
+- Review notes. T203: `market_model.py` gained a private `_forecast_error` helper, as the brief
+  allowed, with no behaviour change; test tolerances are 3 standard errors, and the coder checked
+  seeds 1 to 20. T204: a firm whose ticker is missing from the price frame is now skipped with a
+  message instead of raising `KeyError`, as the brief specifies. T206: the real
+  `config/events.yaml` passes; beyond the brief, `label` and `description` must be non-empty
+  strings. Note for the owner: `time_sgt` must be quoted in YAML (`"10:30"`), because an unquoted
+  `10:30` is read as the number 630 and is rejected.
+- Briefs written, queue was empty: T207 (`0e37fb7`) and T208 (`55802eb`), both now `ready`. T208 adds a
+  new function and leaves the `load_psi` stub, because T205's tests pin that stub.
+- Not briefed, and why. T401 (note skeleton): the shape of the note depends on G1, and the
+  write-up phase is planned for January; a brief now would be guesswork. T402 (citations):
+  the references live in `docs/design.md`, `docs/preregistration.md`, `reports/` and
+  `research_notes/`, all protected, so the task as titled ("fix `docs/` references") cannot be
+  done by the loop. **Owner: say whether T402 should produce a findings file instead, and when
+  T401 should start.**
+- Gap found, no task created: the PSI bulk file ends on 1 Oct 2026, so October and November
+  2026 need the real-time API. A reader for it is not on the board.
+- No network call was made; `make data` and `make pilot` were not run.
+- Blocked or waiting: G1 (owner). Next in board order: T207, T208. After those, everything left
+  is `waiting` on G1 or on the owner, so the loop will pause itself unless the board changes.
+- Not checked: the GitHub Actions result for these pushes.
+- Owner actions still open: O1, O3, O4 (due 29 Nov), O7, O8; the concession download and FIRMS
+  MAP_KEY from run 4; the two test changes flagged in runs 2 and 3.
+
 ## 2026-11-20 16:43 UTC run 6
 
 - Synced the owner's protocol change `bf8ddad` (pick one task at a time, follow a dependency
