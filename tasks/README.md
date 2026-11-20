@@ -24,6 +24,9 @@ The planner never writes task code that a coder could write. The coders never pl
 4. **Pick up to three tasks**, in board order, with status `ready`, every dependency `done`, every
    gate open and every `Needs` item available. Check a `Needs` item cheaply (for a host: one
    request). If it is not available, leave the task `waiting`.
+   Pick one task at a time, after the previous one is committed: a task whose dependency was
+   finished earlier in the same run is eligible. Follow a dependency chain (for example T113 then
+   T114) before starting unrelated tasks further down the board.
 5. **For each picked task:**
    1. Tier `planner`: do it yourself. Otherwise start **one** coder with the Agent tool, with
       `model` set to the task's tier, and give it: the path of the brief, the instruction to read
