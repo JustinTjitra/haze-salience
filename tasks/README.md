@@ -94,7 +94,7 @@ brief) · `done`
 | [T111](T111-after-close-day0.md) | After-close day-0 rule | haiku | T110 | | done |
 | [T112](T112-fetch-coverage-report.md) | Fetch coverage report | haiku | T108 | | done |
 | [T113](T113-pilot-report.md) | Pilot report writer | haiku | T106, T111 | | done |
-| [T114](T114-pilot-real-data-run.md) | Real-data pilot run | planner | T112, T113 | Network: Yahoo Finance | ready |
+| [T114](T114-pilot-real-data-run.md) | Real-data pilot run | planner | T112, T113 | Network: Yahoo Finance | done |
 | [T115](T115-feasibility-check.md) | Feasibility check on live pages (concessions, FIRMS, PSI) | planner | | Network | done |
 | G1 | Go/no-go (owner, O4) | owner | T114, T115 | | waiting |
 
