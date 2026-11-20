@@ -129,3 +129,34 @@ def test_t_day0_in_summary(synthetic_returns):
     df = synthetic_returns
     res = event_study(df["firm"], df[["mkt", "cpo"]], "2026-10-16", EST, WIN, 100)
     assert res.summary()["t_day0"] == pytest.approx(res.ar.loc[0] / res.ar_se.loc[0])
+
+
+def test_summary_short_windows(synthetic_returns):
+    df = synthetic_returns
+    res = event_study(df["firm"], df[["mkt", "cpo"]], "2026-10-16", EST, WIN, 100)
+    s = res.summary()
+    assert s["car_0_1"] == pytest.approx(res.ar.loc[0:1].sum())
+    assert s["car_0_3"] == pytest.approx(res.ar.loc[0:3].sum())
+    assert s["car_0_1"] == pytest.approx(res.ar.loc[0] + res.ar.loc[1])
+
+
+def test_summary_placebo_pvalues(synthetic_returns):
+    df = synthetic_returns.copy()
+    day0 = pd.Timestamp("2026-10-16")
+    base = event_study(df["firm"], df[["mkt", "cpo"]], day0, EST, WIN, 100).summary()
+    assert 0.0 <= base["p_placebo_day0"] <= 1.0
+    assert 0.0 <= base["p_placebo_0_1"] <= 1.0
+
+    df.loc[day0, "firm"] += -0.08
+    shocked = event_study(df["firm"], df[["mkt", "cpo"]], day0, EST, WIN, 100).summary()
+    assert shocked["p_placebo_day0"] < 0.02
+
+
+def test_summary_short_window_outside_event_window(synthetic_returns):
+    df = synthetic_returns
+    res = event_study(df["firm"], df[["mkt", "cpo"]], "2026-10-16", EST, (-10, 0), 100)
+    s = res.summary()
+    assert np.isnan(s["car_0_1"])
+    assert np.isnan(s["p_placebo_0_1"])
+    assert np.isnan(s["car_0_3"])
+    assert 0.0 <= s["p_placebo_day0"] <= 1.0

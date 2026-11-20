@@ -16,9 +16,26 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 
+from haze_salience.events.placebo import placebo_pvalue
+
 
 class EventStudyError(ValueError):
     pass
+
+
+def _sum_offsets(ar: pd.Series, offsets: range) -> float:
+    """Sum of `ar` over `offsets`; NaN if any of those offsets is outside the window or NaN."""
+    vals = ar.reindex(list(offsets)).to_numpy(dtype=float)
+    if np.isnan(vals).any():
+        return float("nan")
+    return float(vals.sum())
+
+
+def _placebo_lower(resid: pd.Series, observed: float, length: int) -> float:
+    """Lower-tail placebo p-value; NaN (not an error) when the observed value is NaN."""
+    if np.isnan(observed):
+        return float("nan")
+    return placebo_pvalue(resid, observed, length, "lower")
 
 
 @dataclass(frozen=True)
@@ -35,6 +52,9 @@ class EventResult:
 
     def summary(self) -> dict:
         ar = self.ar
+        car_0_1 = _sum_offsets(ar, range(0, 2))
+        car_0_3 = _sum_offsets(ar, range(0, 4))
+        day0_ar = float(ar.reindex([0]).iloc[0])
         return {
             "day0": self.day0.date().isoformat(),
             "n_estimation": self.n_estimation,
@@ -45,6 +65,10 @@ class EventResult:
             "car_total": ar.sum(),
             "band_total": self.band.iloc[-1],
             "t_day0": self.ar.loc[0] / self.ar_se.loc[0],
+            "car_0_1": car_0_1,  # short window: day 0 and day 1
+            "car_0_3": car_0_3,  # short window: day 0 through day 3
+            "p_placebo_day0": _placebo_lower(self.resid, day0_ar, 1),
+            "p_placebo_0_1": _placebo_lower(self.resid, car_0_1, 2),
         }
 
 
