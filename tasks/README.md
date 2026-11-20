@@ -105,7 +105,7 @@ brief) · `done`
 | [T201](T201-universe-idx.md) | Universe with IDX names | haiku | T113 | | done |
 | [T202](T202-seasons-config.md) | Seasons configuration | haiku | | | done |
 | [T203](T203-season-abnormal-returns.md) | Season abnormal returns | sonnet | T202, T102 | | done |
-| [T204](T204-returns-builder.md) | Returns builder per exchange | sonnet | T201 | | ready |
+| [T204](T204-returns-builder.md) | Returns builder per exchange | sonnet | T201 | | done |
 | [T205](T205-psi-daily-measure.md) | PSI daily measure and streaks | haiku | | | done |
 | [T206](T206-events-schema.md) | Events schema validator | haiku | T201 | | ready |
 | T207 | Multi-event runner across exchanges and seasons | sonnet | T204, T206 | | needs-brief |

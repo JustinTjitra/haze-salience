@@ -7,7 +7,6 @@ from dataclasses import dataclass, field
 import numpy as np
 import pandas as pd
 
-from haze_salience.data.align import align_to_calendar, simple_returns
 from haze_salience.events.market_model import (
     EventResult,
     EventStudyError,
@@ -15,6 +14,7 @@ from haze_salience.events.market_model import (
     locate_day0,
 )
 from haze_salience.events.portfolio import long_short_return, portfolio_return
+from haze_salience.events.returns import build_returns, validate_lags
 from haze_salience.events.volume import abnormal_volume
 
 log = logging.getLogger(__name__)
@@ -87,11 +87,7 @@ def run_pilot(
     gets `abvol_day0` and `abvol_0_1` and portfolio rows get NaN in both; when None the columns
     are absent.
     """
-    lags = list(cpo_lags)
-    if any(k < 0 for k in lags):
-        raise ValueError(f"cpo_lags must be non-negative, got {lags}")
-    if len(set(lags)) != len(lags):
-        raise ValueError(f"cpo_lags must not contain duplicates, got {lags}")
+    lags = validate_lags(cpo_lags)
     index_ticker = universe["market_index"]["ticker"]
     calendar = prices[index_ticker].dropna().index  # SGX trading days
 
@@ -99,16 +95,9 @@ def run_pilot(
     extra_lags = [k for k in lags if k > 0]
     if extra_lags:
         control_label += " + lags " + ", ".join(str(k) for k in extra_lags)
-    levels = pd.DataFrame(
-        {f["name"]: prices[f["ticker"]].reindex(calendar) for f in universe["firms"]}
-    )
-    levels["mkt"] = prices[index_ticker].reindex(calendar)
-    levels["cpo"] = align_to_calendar(calendar, cpo)
-    rets = simple_returns(levels)
-    factors = rets[["mkt", "cpo"]].copy()
+    rets = build_returns(prices, universe, cpo, lags)
     lag_cols = {k: f"cpo_lag{k}" for k in extra_lags}
-    for k, col in lag_cols.items():
-        factors[col] = rets["cpo"].shift(k)
+    factors = rets[["mkt", "cpo", *lag_cols.values()]]
     if 0 not in lags:
         factors = factors.drop(columns="cpo")
 
