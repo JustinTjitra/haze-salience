@@ -3,6 +3,29 @@
 Newest entry first. One entry per run of the loop: date and time (UTC), tasks finished (with commit
 hashes), tasks blocked and why, and what the owner needs to do.
 
+## 2026-11-20 20:56 UTC run 8
+
+- No owner commits since run 7; `tasks/DECISIONS.md` unchanged (G1 and G2 open).
+- Health check before changes: `make test` (174 passed) and `make lint` green.
+- Done: T207 Multi-event runner across exchanges and seasons (`c8b524a`, sonnet), T208 PSI file
+  reader for the data.gov.sg bulk CSV (`f7df75d`, haiku). Both first pass against the briefs written
+  in run 7, with no repairs. Suite is now 194 tests. Only two tasks were eligible.
+- Review notes. T207: lags are validated before any work, not inside `build_returns` as the
+  brief worded it (same error); an empty run returns a frame with only the four leading columns;
+  the exact-equality test against `run_pilot` passes; the planted-shock test runs over six seeds.
+  T208: the reader was tested on hand-written CSVs only; it has not been run on the real file,
+  which has not been downloaded.
+- No network call was made; `make data` and `make pilot` were not run.
+- **The board is now out of work the loop can do.** Nothing is `ready`. T401 and T402 are
+  `needs-brief` and need the owner first (see run 7: T401 depends on the shape G1 gives the
+  note; T402's targets are protected files). T209 waits on a verified IDX rule history. All of
+  Phase 3 waits on G1. If the board is unchanged at the next run, the loop logs that and pauses
+  its schedule.
+- Not checked: the GitHub Actions result for these pushes.
+- Owner actions still open: O4 (G1, due 29 Nov), O1, O3, O7, O8; the T401 and T402 questions;
+  the concession download and FIRMS MAP_KEY from run 4; the two test changes flagged in runs 2
+  and 3.
+
 ## 2026-11-20 17:01 UTC run 7
 
 - Health check before changes: `make test` (109 passed) and `make lint` green.
