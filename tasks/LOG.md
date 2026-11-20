@@ -3,6 +3,40 @@
 Newest entry first. One entry per run of the loop: date and time (UTC), tasks finished (with commit
 hashes), tasks blocked and why, and what the owner needs to do.
 
+## 2026-11-20 16:43 UTC run 6
+
+- Synced the owner's protocol change `bf8ddad` (pick one task at a time, follow a dependency
+  chain) and followed it: T113, then T114, then T201.
+- Health check before changes: `make test` (94 passed) and `make lint` green.
+- Done: T113 Pilot report writer (`f7a2ca9`, haiku), T114 Real-data pilot run (`c169c94`, planner),
+  T201 Universe with IDX names (`b3c5d5a`, haiku). Suite is now 109 tests.
+- **T114, the first run on real data.** Outputs: `outputs/figures/pilot_report.md`,
+  `pilot_car_summary.csv`, `pilot_car.png`.
+  - Data: Yahoo Finance, 2025-12-01 to 2026-11-06, 242 calendar rows, 236 observations for each
+    of the 7 series. Coverage report: no ticker failed, none `ends_early`.
+  - Control: `CBOT soybean oil (ZL=F), FCPO proxy + lags 1`. The FCPO CSV is manual data and was
+    not present. **The owner's local run with FCPO (O3) supersedes these outputs.**
+  - Firms skipped: none. Portfolios skipped: none.
+  - Both events are `verified: false`, so the report carries "Unverified events: results are
+    provisional." `pm_statement_2026` was run as dated, 16 Oct without `after_close`.
+  - Volume: Indofood Agri Resources (5JS.SI) has 8 zero-volume days in the fetch window; they
+    are treated as missing by the abnormal-volume measure.
+  - Nothing under `data/` is committed. The result is not characterised here; G1 is the owner's.
+- T201: the six IDX names and tickers were added verbatim from the brief, all `verify: true`.
+  The coder noted that `docs/design.md` spells one firm "Sawit Sumber Mas" where the brief has
+  "Sawit Sumbermas Sarana"; the brief's spelling was kept and `docs/design.md` (protected) was
+  not touched. The SGX view passed to the pilot is unchanged, so the T114 outputs still match
+  the code.
+- Review notes, T113: the "How to read this" text says "With five firms", which goes stale if
+  the SGX universe changes; the events table lists only the pilot's events.
+- Blocked or waiting: G1 now has both inputs (T114, T115) and waits on the owner. Next in board
+  order: T203, T204, T206.
+- Not checked: the GitHub Actions result for these pushes.
+- **Owner:** read `outputs/figures/pilot_report.md` and `docs/feasibility.md`, then decide G1
+  (O4, due 29 Nov). Before relying on the pilot: O1 (verify the two events), O3 (FCPO run), and
+  the `verify: true` tickers. Still open from earlier runs: O7, O8, the concession download,
+  the FIRMS MAP_KEY, and the two test changes flagged in runs 2 and 3.
+
 ## 2026-11-20 16:37 UTC run 5
 
 - Health check before changes: `make test` (70 passed) and `make lint` green.
