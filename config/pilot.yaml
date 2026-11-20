@@ -1,4 +1,5 @@
 # Stage 1 pilot parameters (docs/superpowers/specs/2026-11-08-haze-salience-repo-design.md).
+exchange: SGX                              # exchange in config/universe.yaml that the pilot uses
 events: [greenpeace_2026, pm_statement_2026]
 
 # Trading-day offsets relative to day 0 (first SGX trading day on or after the event date).

@@ -10,12 +10,14 @@ from haze_salience import ROOT
 from haze_salience.config import load_events, load_yaml
 from haze_salience.data import cpo as cpo_mod
 from haze_salience.data import prices as prices_mod
+from haze_salience.universe import exchange_view, load_universe
 
 RAW = ROOT / "data" / "raw"
 
 
 def cmd_fetch() -> None:
-    universe, pilot = load_yaml("universe.yaml"), load_yaml("pilot.yaml")
+    pilot = load_yaml("pilot.yaml")
+    universe = exchange_view(load_universe(), pilot["exchange"])
     tickers = [f["ticker"] for f in universe["firms"]]
     tickers += [universe["market_index"]["ticker"], pilot["cpo"]["fallback_ticker"]]
     frames = prices_mod.fetch_ohlcv(tickers, str(pilot["fetch_start"]), str(pilot["fetch_end"]))
@@ -39,7 +41,8 @@ def cmd_pilot() -> None:
     from haze_salience.events.plot import plot_pilot
     from haze_salience.events.report import write_pilot_report
 
-    universe, pilot, events = load_yaml("universe.yaml"), load_yaml("pilot.yaml"), load_events()
+    pilot, events = load_yaml("pilot.yaml"), load_events()
+    universe = exchange_view(load_universe(), pilot["exchange"])
     prices = prices_mod.load_prices(RAW)
     try:
         volumes = prices_mod.load_volumes(RAW)

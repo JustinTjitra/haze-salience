@@ -1,33 +1,74 @@
-# Stage 1 pilot universe: SGX-listed palm oil groups.
-# verify: true means listing status and ticker have not been checked against SGX yet.
-# Do that before trusting the pilot. IDX names are added for Stage 2 (see docs/design.md).
-market_index:
-  name: Straits Times Index
-  ticker: "^STI"
+# Palm oil firms by exchange. The pilot uses SGX only (config/pilot.yaml, `exchange`).
+# verify: true means listing status and ticker have not been checked against the exchange yet.
+# Do that before trusting the pilot. IDX names are for Stage 2 (see docs/design.md).
+exchanges:
+  SGX: {index_name: Straits Times Index, index_ticker: "^STI", currency: SGD}
+  IDX: {index_name: Jakarta Composite Index, index_ticker: "^JKSE", currency: IDR}
 
 firms:
   - name: First Resources
     ticker: EB5.SI
     exchange: SGX
+    group: First Resources
     greenpeace_named_2026: true
     verify: true
   - name: Bumitama Agri
     ticker: P8Z.SI
     exchange: SGX
+    group: Bumitama Agri
     greenpeace_named_2026: true
     verify: true
   - name: Golden Agri-Resources
     ticker: E5H.SI
     exchange: SGX
+    group: Sinar Mas
     greenpeace_named_2026: false
     verify: true
   - name: Wilmar International
     ticker: F34.SI
     exchange: SGX
+    group: Wilmar International
     greenpeace_named_2026: false
     verify: true
   - name: Indofood Agri Resources
     ticker: 5JS.SI
     exchange: SGX
+    group: Salim
     greenpeace_named_2026: false
     verify: true   # possible exit offer / delisting; check first
+  - name: Astra Agro Lestari
+    ticker: AALI.JK
+    exchange: IDX
+    group: Astra
+    greenpeace_named_2026: false
+    verify: true
+  - name: SMART (Sinar Mas Agro Resources)
+    ticker: SMAR.JK
+    exchange: IDX
+    group: Sinar Mas
+    greenpeace_named_2026: false
+    verify: true
+  - name: London Sumatra
+    ticker: LSIP.JK
+    exchange: IDX
+    group: Salim
+    greenpeace_named_2026: false
+    verify: true
+  - name: Salim Ivomas Pratama
+    ticker: SIMP.JK
+    exchange: IDX
+    group: Salim
+    greenpeace_named_2026: false
+    verify: true
+  - name: Sawit Sumbermas Sarana
+    ticker: SSMS.JK
+    exchange: IDX
+    group: Sawit Sumbermas
+    greenpeace_named_2026: false
+    verify: true
+  - name: Dharma Satya Nusantara
+    ticker: DSNG.JK
+    exchange: IDX
+    group: Dharma Satya
+    greenpeace_named_2026: false
+    verify: true
