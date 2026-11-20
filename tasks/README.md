@@ -107,7 +107,7 @@ brief) · `done`
 | [T203](T203-season-abnormal-returns.md) | Season abnormal returns | sonnet | T202, T102 | | done |
 | [T204](T204-returns-builder.md) | Returns builder per exchange | sonnet | T201 | | done |
 | [T205](T205-psi-daily-measure.md) | PSI daily measure and streaks | haiku | | | done |
-| [T206](T206-events-schema.md) | Events schema validator | haiku | T201 | | ready |
+| [T206](T206-events-schema.md) | Events schema validator | haiku | T201 | | done |
 | T207 | Multi-event runner across exchanges and seasons | sonnet | T204, T206 | | needs-brief |
 | T208 | PSI file reader for the data.gov.sg bulk CSV | haiku | T205, T115 | Schema from T115 | needs-brief |
 | T209 | IDX price-limit day flags | sonnet | T204 | Verified 2015 to 2026 rule history | waiting |
