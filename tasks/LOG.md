@@ -3,6 +3,24 @@
 Newest entry first. One entry per run of the loop: date and time (UTC), tasks finished (with commit
 hashes), tasks blocked and why, and what the owner needs to do.
 
+## 2026-11-20 16:37 UTC run 5
+
+- Health check before changes: `make test` (70 passed) and `make lint` green.
+- Done: T111 After-close day-0 rule (`2276aa4`, haiku), T202 Seasons configuration (`c23f8af`, haiku),
+  T205 PSI daily measure and streaks (`77f2bcd`, haiku). All first pass, no brief repairs. Suite is
+  now 94 tests.
+- Review notes, all choices the briefs left open. T202: `season_windows` raises `ValueError` for
+  a year not listed in the config. T205: the daily calendar spans all readings, not only those at
+  the chosen hour; a missing calendar day breaks a streak; an hour outside 0..23 raises. T111:
+  `config/events.yaml` was not touched; `pm_statement_2026` is still dated 16 Oct without
+  `after_close`, which gives the same day 0 as 15 Oct with it.
+- No network call was made; `make data` and `make pilot` were not run.
+- Blocked or waiting: nothing new. Next in board order: T113 (report writer), then T114 (first
+  real-data pilot run, planner), which needs T113 and so falls in a later run. T203 is also ready.
+- Not checked: the GitHub Actions result for these pushes.
+- Owner actions still open: O1, O3, O4 (due 29 Nov), O7, O8; the concession download and FIRMS
+  MAP_KEY from run 4; the two test changes flagged in runs 2 and 3.
+
 ## 2026-11-20 16:02 UTC run 4
 
 - Health check before changes: `make test` (62 passed) and `make lint` green.
