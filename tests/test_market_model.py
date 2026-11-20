@@ -78,3 +78,54 @@ def test_summary_windows(synthetic_returns):
     assert s["car_pre"] == pytest.approx(res.ar.loc[-10:-1].sum())
     assert s["car_day0"] == pytest.approx(res.ar.loc[0])
     assert s["car_post"] == pytest.approx(res.ar.loc[0:10].sum())
+
+
+def _fixture_design(df, factors=("mkt", "cpo")):
+    day0 = locate_day0(df.index, "2026-10-16")
+    est = slice(day0 - 150, day0 - 30)
+    X = np.column_stack([np.ones(120), df[list(factors)].iloc[est].to_numpy()])
+    return day0, X
+
+
+def test_ar_se_matches_hand_formula(synthetic_returns):
+    df = synthetic_returns
+    res = event_study(df["firm"], df[["mkt", "cpo"]], "2026-10-16", EST, WIN, 100)
+    day0, X = _fixture_design(df)
+    xtx_inv = np.linalg.inv(X.T @ X)
+    for tau in (-10, 0, 10):
+        x = np.array([1.0, df["mkt"].iloc[day0 + tau], df["cpo"].iloc[day0 + tau]])
+        expected = res.sigma * np.sqrt(1 + x @ xtx_inv @ x)
+        assert res.ar_se.loc[tau] == pytest.approx(expected)
+
+
+def test_ar_se_at_least_sigma(synthetic_returns):
+    df = synthetic_returns
+    res = event_study(df["firm"], df[["mkt", "cpo"]], "2026-10-16", EST, WIN, 100)
+    se = res.ar_se.dropna()
+    assert len(se) == 21
+    assert (se >= res.sigma).all()
+    assert (se < 1.05 * res.sigma).all()
+
+
+def test_ar_se_grows_with_extreme_factor(synthetic_returns):
+    df = synthetic_returns.copy()
+    day0 = pd.Timestamp("2026-10-16")
+    df.loc[day0, "mkt"] = 10 * df["mkt"].std()
+    res = event_study(df["firm"], df[["mkt", "cpo"]], day0, EST, WIN, 100)
+    assert res.ar_se.loc[0] > 1.05 * res.ar_se.loc[1]
+
+
+def test_resid_properties(synthetic_returns):
+    df = synthetic_returns
+    res = event_study(df["firm"], df[["mkt", "cpo"]], "2026-10-16", EST, WIN, 100)
+    n = res.n_estimation
+    assert len(res.resid) == n
+    assert isinstance(res.resid.index, pd.DatetimeIndex)
+    assert abs(res.resid.mean()) < 1e-10
+    assert np.sqrt((res.resid**2).sum() / (n - 3)) == pytest.approx(res.sigma)
+
+
+def test_t_day0_in_summary(synthetic_returns):
+    df = synthetic_returns
+    res = event_study(df["firm"], df[["mkt", "cpo"]], "2026-10-16", EST, WIN, 100)
+    assert res.summary()["t_day0"] == pytest.approx(res.ar.loc[0] / res.ar_se.loc[0])

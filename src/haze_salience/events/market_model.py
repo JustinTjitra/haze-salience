@@ -30,6 +30,8 @@ class EventResult:
     ar: pd.Series  # indexed by trading-day offset
     car: pd.Series
     band: pd.Series  # half-width of the ~95% band around CAR
+    ar_se: pd.Series  # per-day forecast SE of the AR, incl. market-model estimation error
+    resid: pd.Series  # estimation-window OLS residuals, indexed by date (valid rows only)
 
     def summary(self) -> dict:
         ar = self.ar
@@ -42,6 +44,7 @@ class EventResult:
             "car_post": ar.loc[0:].sum(),  # day 0 through end of window
             "car_total": ar.sum(),
             "band_total": self.band.iloc[-1],
+            "t_day0": self.ar.loc[0] / self.ar_se.loc[0],
         }
 
 
@@ -101,6 +104,14 @@ def event_study(
         1.96 * sigma * np.sqrt(np.arange(1, len(offsets) + 1)), index=offsets, name="band"
     )
 
+    # Forecast SE: sigma * sqrt(1 + x' (X'X)^-1 x) with X the rows used in the fit.
+    X_fit = X[valid].to_numpy(dtype=float)
+    ar_se = pd.Series(np.nan, index=offsets, name="ar_se")
+    xw = Xw.to_numpy(dtype=float)
+    leverage = np.einsum("ij,ji->i", xw, np.linalg.pinv(X_fit.T @ X_fit) @ xw.T)
+    ar_se[in_range] = sigma * np.sqrt(1.0 + leverage)
+    resid = fit.resid.rename("resid")
+
     return EventResult(
         day0=pd.Timestamp(index[day0]),
         params=fit.params.rename(None),
@@ -109,4 +120,6 @@ def event_study(
         ar=ar,
         car=car,
         band=band,
+        ar_se=ar_se,
+        resid=resid,
     )
