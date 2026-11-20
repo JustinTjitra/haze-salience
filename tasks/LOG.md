@@ -6,7 +6,7 @@ hashes), tasks blocked and why, and what the owner needs to do.
 ## 2026-11-20 08:56 UTC run 2
 
 - Health check before changes: `make test` (32 passed) and `make lint` green.
-- Done: T105 Placebo p-values (`ff679b5a`, sonnet), T108 Volume fetch and cache (`1829693`, haiku),
+- Done: T105 Placebo p-values (`f679b5a`, sonnet), T108 Volume fetch and cache (`1829693`, haiku),
   T104 Portfolios in the pilot (`ec1095b`, sonnet, second pass). Suite is now 47 tests.
 - T104 brief defect: the spec contradicted two assertions in the existing
   `test_short_history_firm_is_skipped_not_fatal` (written when the summary and `skipped` held
