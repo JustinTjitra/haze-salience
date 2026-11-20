@@ -3,6 +3,27 @@
 Newest entry first. One entry per run of the loop: date and time (UTC), tasks finished (with commit
 hashes), tasks blocked and why, and what the owner needs to do.
 
+## 2026-11-20 12:57 UTC run 3
+
+- Health check before changes: `make test` (47 passed) and `make lint` green.
+- Done: T106 Short windows and p-values in the summary (`68d5afc`, haiku), T107 Lagged control
+  term (`de1aca7`, sonnet), T109 Abnormal volume (`df128f4`, haiku, second pass). Suite is now 62
+  tests.
+- T109 brief defect: `test_spike_is_detected` asked for `abs=1.0` on the day-0 z-score, but day 0
+  carries its own noise of 1.0 in z units, so that was a one-standard-deviation band (64% pass
+  rate over 2000 seeds, measured by the coder, who stopped instead of picking a seed). The
+  planner repaired the brief (`da208e5`): tolerance 3.0, plus an exact known-answer test.
+  **Owner: this loosened a tolerance the brief had set; check you agree.**
+- Review notes. T107: if `cpo_lags` omits 0, the `cpo` factor and `beta_cpo` are dropped; the
+  brief does not cover that case and nothing uses it. T109: raises `EventStudyError` when the
+  estimation-window log volume has zero variance (not in the original brief, accepted).
+  T106: the placebo p-values are NaN when the offsets are outside the event window; other
+  `ValueError`s from `placebo_pvalue` (fewer than `length + 20` residuals) still propagate.
+- No network call was made; `make data` and `make pilot` were not run.
+- Blocked or waiting: nothing new. Next in board order: T110, then T111 and T112.
+- Not checked: the GitHub Actions result for these pushes.
+- Owner actions still open: O1, O3, O4 (due 29 Nov), O6, O7, O8.
+
 ## 2026-11-20 08:56 UTC run 2
 
 - Health check before changes: `make test` (32 passed) and `make lint` green.
