@@ -49,7 +49,7 @@ def test_run_pilot_end_to_end(prices, tmp_path):
     out = run_pilot(df, UNIVERSE, CFG, EVENTS, lambda: (cpo, "test CPO"))
 
     assert out.skipped == []
-    assert len(out.summary) == 4
+    assert (out.summary["kind"] == "firm").sum() == 4
     assert out.day0_positions["e2"] - out.day0_positions["e1"] == 9
     hit = out.summary.set_index(["event", "firm"]).loc[("e2", "Named Co")]
     assert hit["car_day0"] == pytest.approx(-0.09, abs=0.035)
@@ -64,5 +64,42 @@ def test_short_history_firm_is_skipped_not_fatal(prices):
     df = df.copy()
     df.loc[:"2026-08-31", "BBB.SI"] = np.nan  # listed late: too little estimation data
     out = run_pilot(df, UNIVERSE, CFG, EVENTS, lambda: (cpo, "test CPO"))
-    assert set(out.summary["firm"]) == {"Named Co"}
-    assert len(out.skipped) == 2
+    firm_rows = out.summary[out.summary["kind"] == "firm"]
+    assert set(firm_rows["firm"]) == {"Named Co"}
+    assert sum(m.startswith("Other Co / ") for m in out.skipped) == 2
+    assert len(out.skipped) == 8
+
+
+PORTFOLIOS = {"All firms", "Named", "Not named", "Named minus not named"}
+
+
+def test_summary_has_portfolio_rows(prices):
+    df, cpo = prices
+    out = run_pilot(df, UNIVERSE, CFG, EVENTS, lambda: (cpo, "test CPO"))
+    for event_id in CFG["events"]:
+        sub = out.summary[out.summary["event"] == event_id]
+        port = sub[sub["kind"] == "portfolio"]
+        assert set(port["firm"]) == PORTFOLIOS
+        assert port["greenpeace_named"].isna().all()
+        assert set(sub[sub["kind"] == "firm"]["firm"]) == {"Named Co", "Other Co"}
+        assert set(out.portfolios[event_id]) == PORTFOLIOS
+        assert set(out.results[event_id]) == {"Named Co", "Other Co"}
+    assert (out.summary.query("kind == 'portfolio'")["n_members"] == 2).any()
+
+
+def test_named_minus_not_named_captures_planted_shock(prices):
+    df, cpo = prices
+    out = run_pilot(df, UNIVERSE, CFG, EVENTS, lambda: (cpo, "test CPO"))
+    row = out.summary.set_index(["event", "firm"]).loc[("e2", "Named minus not named")]
+    assert row["car_day0"] == pytest.approx(-0.09, abs=0.04)
+
+
+def test_portfolio_members_exclude_skipped_firms(prices):
+    df, cpo = prices
+    df = df.copy()
+    df.loc[:"2026-08-31", "BBB.SI"] = np.nan  # "Other Co" skipped
+    out = run_pilot(df, UNIVERSE, CFG, EVENTS, lambda: (cpo, "test CPO"))
+    for event_id in CFG["events"]:
+        assert set(out.portfolios[event_id]) == {"Named"}
+        for name in ("All firms", "Not named", "Named minus not named"):
+            assert any(m.startswith(f"{name} / {event_id}") for m in out.skipped)

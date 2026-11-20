@@ -81,7 +81,7 @@ brief) · `done`
 | [T101](T101-ci-workflow.md) | CI workflow | haiku | | | done |
 | [T102](T102-forecast-error-variance.md) | Forecast-error variance and residuals | sonnet | | | done |
 | [T103](T103-portfolio-returns.md) | Portfolio returns | sonnet | | | done |
-| [T104](T104-portfolios-in-pilot.md) | Portfolios in the pilot | sonnet | T103 | | ready |
+| [T104](T104-portfolios-in-pilot.md) | Portfolios in the pilot | sonnet | T103 | | done |
 | [T105](T105-placebo-pvalues.md) | Placebo p-values | sonnet | | | done |
 | [T106](T106-summary-short-windows.md) | Short windows and p-values in the summary | haiku | T102, T105 | | ready |
 | [T107](T107-lagged-control.md) | Lagged control term | sonnet | T104 | | ready |
