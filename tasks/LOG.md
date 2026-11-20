@@ -3,6 +3,33 @@
 Newest entry first. One entry per run of the loop: date and time (UTC), tasks finished (with commit
 hashes), tasks blocked and why, and what the owner needs to do.
 
+## 2026-11-20 16:02 UTC run 4
+
+- Health check before changes: `make test` (62 passed) and `make lint` green.
+- Done: T112 Fetch coverage report (`4794908`, haiku), T110 Volume in the pilot (`c5f249e`,
+  haiku), T115 Feasibility check on live pages (`dabf593`, planner). All first pass. Suite is now
+  70 tests.
+- T115 findings are in `docs/feasibility.md`, each with its URL. In short: PSI bulk file covers
+  1 Apr 2014 to 1 Oct 2026 hourly (2015 included; Oct and Nov 2026 only via the real-time API);
+  FIRMS API template, limits and product names read, S-NPP coverage ends 2 Nov 2026, but whether
+  the API serves 2015/2019/2023 needs a MAP_KEY to check; the GFW Indonesia concession layer
+  (1845 polygons, `company` and `group_comp` fields) was read as metadata only, not opened.
+- Hosts refused by the network policy: `gis-gfw.wri.org`, `www.globalforestwatch.org`,
+  `data-api.globalforestwatch.org`, `api-production.data.gov.sg`. The concession zip on
+  `gfw2-data.s3.amazonaws.com` answered AccessDenied from S3 itself. Not worked around.
+- Review notes. T110: `abvol_0_1` is a skip-NaN mean, so if offset 1 is missing it equals the
+  offset-0 value; the brief does not say which. T110 and T112 both edit `cli.py` (different
+  functions) and were committed separately. T112 adds one test beyond the brief (the 7-day
+  threshold). No real price data was fetched; `make data` and `make pilot` were not run.
+- Blocked or waiting: nothing new. T208's `Needs` (PSI schema) is now met by T115; its brief is
+  not written because more than three tasks are `ready`. Next in board order: T111, then T113,
+  then T114 (the first real-data run).
+- Not checked: the GitHub Actions result for these pushes.
+- **Owner:** (1) try the concession download in a browser, or allow `gis-gfw.wri.org`;
+  (2) supply a FIRMS MAP_KEY if Phase 3 goes ahead (O6 may be unnecessary if the API serves the
+  old seasons); (3) still open: O1, O3, O4 (due 29 Nov), O7, O8, and the two test changes
+  flagged in runs 2 and 3.
+
 ## 2026-11-20 12:57 UTC run 3
 
 - Health check before changes: `make test` (47 passed) and `make lint` green.
