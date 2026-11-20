@@ -109,7 +109,7 @@ brief) · `done`
 | [T205](T205-psi-daily-measure.md) | PSI daily measure and streaks | haiku | | | done |
 | [T206](T206-events-schema.md) | Events schema validator | haiku | T201 | | done |
 | [T207](T207-multi-event-runner.md) | Multi-event runner across exchanges and seasons | sonnet | T204, T206 | | done |
-| [T208](T208-psi-bulk-reader.md) | PSI file reader for the data.gov.sg bulk CSV | haiku | T205, T115 | | ready |
+| [T208](T208-psi-bulk-reader.md) | PSI file reader for the data.gov.sg bulk CSV | haiku | T205, T115 | | done |
 | T209 | IDX price-limit day flags | sonnet | T204 | Verified 2015 to 2026 rule history | waiting |
 
 ### Phase 3: diffusion chain (only after G1 = go)

@@ -4,10 +4,15 @@ Not implemented until the Stage 1 pilot passes the 29 Nov go/no-go. First check 
 the archive goes; the 2015 season is needed.
 
 This module turns regional PSI readings into the daily salience measure, the high-PSI flag and
-unhealthy streaks. The file reader (`load_psi`) is a later task and still raises.
+unhealthy streaks. `read_psi_bulk_csv` reads the data.gov.sg "Historical 24-hr PSI" CSV into the
+long table that `daily_psi` takes. The archive reader `load_psi` is a later task and still raises.
 """
 
 import pandas as pd
+
+REGIONS = ("north", "south", "east", "west", "central")
+_BULK_TIMESTAMP_COLUMN = "24hr_psi"
+_BULK_TIMESTAMP_FORMAT = "%d/%m/%Y %H:%M"
 
 
 def load_psi(*args, **kwargs):
@@ -76,3 +81,59 @@ def unhealthy_streaks(high: pd.Series) -> pd.DataFrame:
     out["end"] = pd.to_datetime(out["end"])
     out["length"] = ((out["end"] - out["start"]).dt.days + 1).astype("int64")
     return out
+
+
+def read_psi_bulk_csv(path) -> pd.DataFrame:
+    """Read the data.gov.sg "Historical 24-hr PSI" CSV into a long table of regional readings.
+
+    The file has a `24hr_psi` column of day-first timestamps (for example `25/9/2015 0:00`) and
+    one text column per region in `REGIONS`; an `_id` column is ignored. The output has columns
+    `timestamp` (tz-naive, parsed with the explicit format `%d/%m/%Y %H:%M`), `region` and
+    `psi_24h` (float), one row per timestamp and region, sorted by timestamp then by the order of
+    `REGIONS`. Empty or non-numeric region cells become NaN. Timestamps are kept as written: no
+    shift of the 0:00 reading and no timezone is applied.
+
+    Raises ValueError if a column is missing, a timestamp does not match the format, or a
+    timestamp appears more than once.
+    """
+    wide = pd.read_csv(path, dtype=str, keep_default_na=False)
+
+    if _BULK_TIMESTAMP_COLUMN not in wide.columns:
+        raise ValueError(f"PSI bulk CSV is missing the timestamp column {_BULK_TIMESTAMP_COLUMN!r}")
+    missing = [region for region in REGIONS if region not in wide.columns]
+    if missing:
+        raise ValueError(f"PSI bulk CSV is missing region column(s): {', '.join(missing)}")
+
+    raw = wide[_BULK_TIMESTAMP_COLUMN]
+    stamps = pd.to_datetime(raw, format=_BULK_TIMESTAMP_FORMAT, errors="coerce")
+    bad = stamps.isna()
+    if bad.any():
+        row = int(bad.idxmax())
+        raise ValueError(
+            f"PSI bulk CSV row {row + 1}: timestamp {raw.iloc[row]!r} does not match "
+            f"the format {_BULK_TIMESTAMP_FORMAT!r} (day first, for example '25/9/2015 0:00')"
+        )
+    duplicated = stamps.duplicated(keep="first")
+    if duplicated.any():
+        dup = stamps[duplicated].iloc[0]
+        raise ValueError(f"PSI bulk CSV has the timestamp {dup} more than once")
+
+    parts = []
+    for rank, region in enumerate(REGIONS):
+        parts.append(
+            pd.DataFrame(
+                {
+                    "timestamp": stamps.to_numpy(),
+                    "region": region,
+                    "psi_24h": pd.to_numeric(wide[region], errors="coerce")
+                    .astype(float)
+                    .to_numpy(),
+                    "_rank": rank,
+                }
+            )
+        )
+    long = pd.concat(parts, ignore_index=True)
+    long = long.sort_values(["timestamp", "_rank"], kind="stable")
+    long = long.drop(columns="_rank").reset_index(drop=True)
+    long["timestamp"] = long["timestamp"].astype("datetime64[ns]")
+    return long
