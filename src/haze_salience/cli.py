@@ -33,8 +33,11 @@ def cmd_fetch() -> None:
 
 
 def cmd_pilot() -> None:
+    from datetime import UTC, datetime
+
     from haze_salience.events.pilot import run_pilot
     from haze_salience.events.plot import plot_pilot
+    from haze_salience.events.report import write_pilot_report
 
     universe, pilot, events = load_yaml("universe.yaml"), load_yaml("pilot.yaml"), load_events()
     prices = prices_mod.load_prices(RAW)
@@ -60,6 +63,18 @@ def cmd_pilot() -> None:
     fig = plot_pilot(out, universe, events, ROOT / pilot["figure"])
     csv = fig.with_name("pilot_car_summary.csv")
     out.summary.to_csv(csv, index=False)
+    report = write_pilot_report(
+        out,
+        universe,
+        events,
+        {
+            "generated": datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC"),
+            "data_start": str(prices.index.min().date()),
+            "data_end": str(prices.index.max().date()),
+            "figure": fig.name,  # the report is written beside the figure
+        },
+        fig.with_name("pilot_report.md"),
+    )
 
     pct = ["car_pre", "car_day0", "car_post", "car_total", "band_total"]
     show = out.summary.set_index(["event", "firm"])[pct] * 100
@@ -70,6 +85,7 @@ def cmd_pilot() -> None:
     for s in out.skipped:
         print(f"skipped: {s}")
     print(f"\nWrote {fig.relative_to(ROOT)} and {csv.relative_to(ROOT)}")
+    print(f"Wrote {report.relative_to(ROOT)}")
 
 
 def main(argv=None) -> None:
