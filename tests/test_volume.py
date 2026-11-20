@@ -24,6 +24,18 @@ def test_known_answer_z_scores():
     assert z.loc[1] == pytest.approx(0.0)
 
 
+def test_after_close_shifts_day0_by_one_day():
+    """Same estimation logs as the known-answer test; an event on 4 Jan after the close has day 0
+    on 5 Jan, so z at day 0 is the 5 Jan log (4.0) against estimation logs 1, 2, 3."""
+    calendar = pd.bdate_range("2026-01-05", periods=10)
+    volume = pd.Series(np.exp([0.0, 0.0, 1.0, 2.0, 3.0, 4.0, 2.0, 0.0, 0.0, 0.0]), index=calendar)
+    z = abnormal_volume(
+        volume, calendar[4], (-3, -1), (0, 1), min_estimation_days=3, after_close=True
+    )
+    assert z.loc[0] == pytest.approx(2.0)
+    assert z.loc[1] == pytest.approx(0.0)
+
+
 def test_spike_is_detected(calendar):
     volume = _lognormal_volume(calendar)
     day0 = pd.Timestamp("2026-10-16")

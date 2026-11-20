@@ -1,7 +1,8 @@
 """Market-model event study on a trading-day index.
 
-Day 0 is the first trading day on or after the event date. For each firm and event, OLS of
-the firm return on factor returns over the estimation window gives the normal return; the
+Day 0 is the first trading day on or after the event date, or the first trading day strictly
+after it when the event was announced after the close (`after_close`). For each firm and event,
+OLS of the firm return on factor returns over the estimation window gives the normal return; the
 abnormal return (AR) is the residual over the event window and CAR accumulates it from the
 first day of the event window.
 
@@ -72,9 +73,14 @@ class EventResult:
         }
 
 
-def locate_day0(index: pd.DatetimeIndex, event_date) -> int:
-    """Position of the first trading day on or after `event_date`."""
-    pos = int(pd.DatetimeIndex(index).searchsorted(pd.Timestamp(event_date), side="left"))
+def locate_day0(index: pd.DatetimeIndex, event_date, after_close: bool = False) -> int:
+    """Position of day 0 for an event dated `event_date`.
+
+    By default this is the first trading day on or after `event_date`. With `after_close=True`
+    (news posted after the market closed) it is the first trading day strictly after it.
+    """
+    side = "right" if after_close else "left"
+    pos = int(pd.DatetimeIndex(index).searchsorted(pd.Timestamp(event_date), side=side))
     if pos >= len(index):
         raise EventStudyError(f"Event date {event_date} is after the last trading day in the data.")
     return pos
@@ -87,12 +93,13 @@ def event_study(
     estimation_window: tuple[int, int],
     event_window: tuple[int, int],
     min_estimation_days: int,
+    after_close: bool = False,
 ) -> EventResult:
     """Run the market model for one firm and one event. `firm` and `factors` share an index."""
     if not firm.index.equals(factors.index):
         raise EventStudyError("firm and factors must share the same trading-day index.")
     index = firm.index
-    day0 = locate_day0(index, event_date)
+    day0 = locate_day0(index, event_date, after_close)
     est_lo, est_hi = estimation_window
     win_lo, win_hi = event_window
     if not est_hi < win_lo:

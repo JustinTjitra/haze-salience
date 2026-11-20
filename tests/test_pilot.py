@@ -220,3 +220,23 @@ def test_volume_study_error_gives_nan(prices):
     other = out.summary[(out.summary["kind"] == "firm") & (out.summary["firm"] == "Other Co")]
     assert other[["abvol_day0", "abvol_0_1"]].isna().all().all()
     assert out.skipped == []
+
+
+def test_pilot_honours_after_close(prices):
+    """Thursday 15 Oct after the close gives the same numbers as Friday 16 Oct."""
+    df, cpo = prices
+    vol = _volumes(df.index)
+    events = {
+        "e2": {"date": "2026-10-16", "label": "Statement"},
+        "e3": {"date": "2026-10-15", "label": "Statement", "after_close": True},
+    }
+    cfg = {**CFG, "events": ["e2", "e3"]}
+    out = run_pilot(df, UNIVERSE, cfg, events, lambda: (cpo, "test CPO"), volumes=vol)
+
+    assert out.day0_positions["e3"] == out.day0_positions["e2"]
+    rows = {}
+    for event_id in ("e2", "e3"):
+        sub = out.summary[out.summary["event"] == event_id].drop(columns="event")
+        rows[event_id] = sub.reset_index(drop=True)
+    pd.testing.assert_frame_equal(rows["e3"], rows["e2"])
+    assert rows["e3"]["abvol_day0"].notna().any()

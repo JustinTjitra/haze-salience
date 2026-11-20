@@ -22,14 +22,16 @@ def abnormal_volume(
     estimation_window: tuple[int, int],
     event_window: tuple[int, int],
     min_estimation_days: int,
+    after_close: bool = False,
 ) -> pd.Series:
     """Standardised log-volume abnormality for each offset in `event_window`.
 
     `volume` is indexed by trading day. Offsets are trading-day offsets from day 0, the first
-    trading day on or after `event_date`. Zero or negative volume is treated as missing. The
-    result is indexed by a RangeIndex named `offset`; offsets outside the data are NaN.
+    trading day on or after `event_date` (strictly after it when `after_close` is set). Zero or
+    negative volume is treated as missing. The result is indexed by a RangeIndex named `offset`;
+    offsets outside the data are NaN.
     """
-    day0 = locate_day0(pd.DatetimeIndex(volume.index), event_date)
+    day0 = locate_day0(pd.DatetimeIndex(volume.index), event_date, after_close)
     est_lo, est_hi = estimation_window
     win_lo, win_hi = event_window
     if day0 + est_lo < 0:

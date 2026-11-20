@@ -22,6 +22,47 @@ def test_locate_day0_after_data_raises(calendar):
         locate_day0(calendar, "2027-01-04")
 
 
+def test_after_close_moves_to_next_trading_day(calendar):
+    # Thursday 2026-10-15 announced after the close: day 0 is Friday 2026-10-16
+    assert calendar[locate_day0(calendar, "2026-10-15", after_close=True)] == pd.Timestamp(
+        "2026-10-16"
+    )
+    assert calendar[locate_day0(calendar, "2026-10-15", after_close=False)] == pd.Timestamp(
+        "2026-10-15"
+    )
+
+
+def test_after_close_on_friday_rolls_to_monday(calendar):
+    assert calendar[locate_day0(calendar, "2026-10-16", after_close=True)] == pd.Timestamp(
+        "2026-10-19"
+    )
+
+
+def test_after_close_on_non_trading_day(calendar):
+    # Saturday 2026-10-17 -> Monday 2026-10-19 whether or not the flag is set
+    for flag in (False, True):
+        assert calendar[locate_day0(calendar, "2026-10-17", after_close=flag)] == pd.Timestamp(
+            "2026-10-19"
+        )
+
+
+def test_after_close_after_data_raises(calendar):
+    with pytest.raises(EventStudyError):
+        locate_day0(calendar, calendar[-1], after_close=True)
+
+
+def test_event_study_after_close_matches_next_day(synthetic_returns):
+    df = synthetic_returns.copy()
+    df.loc["2026-10-16", "firm"] += -0.08
+    late = event_study(
+        df["firm"], df[["mkt", "cpo"]], "2026-10-15", EST, WIN, 100, after_close=True
+    )
+    next_day = event_study(df["firm"], df[["mkt", "cpo"]], "2026-10-16", EST, WIN, 100)
+    assert late.day0 == pd.Timestamp("2026-10-16")
+    pd.testing.assert_series_equal(late.ar, next_day.ar)
+    pd.testing.assert_series_equal(late.params, next_day.params)
+
+
 def test_recovers_betas_and_planted_shock(synthetic_returns):
     df = synthetic_returns.copy()
     day0 = pd.Timestamp("2026-10-16")

@@ -46,6 +46,7 @@ def _abvol_cols(
     window: tuple[int, int],
     event_window: tuple[int, int],
     min_estimation_days: int,
+    after_close: bool = False,
 ) -> dict[str, float]:
     """`abvol_day0` (z at offset 0) and `abvol_0_1` (mean of z at offsets 0 and 1).
 
@@ -61,6 +62,7 @@ def _abvol_cols(
             window,
             event_window,
             min_estimation_days,
+            after_close,
         )
     except EventStudyError:
         return nan
@@ -116,9 +118,13 @@ def run_pilot(
     named_flag = {f["name"]: f.get("greenpeace_named_2026", False) for f in universe["firms"]}
     window = tuple(pilot_cfg["estimation_window"])
     event_window = tuple(pilot_cfg["event_window"])
-    day0_positions = {e: locate_day0(rets.index, events[e]["date"]) for e in pilot_cfg["events"]}
+    day0_positions = {
+        e: locate_day0(rets.index, events[e]["date"], bool(events[e].get("after_close", False)))
+        for e in pilot_cfg["events"]
+    }
     for event_id in pilot_cfg["events"]:
         ev = events[event_id]
+        after_close = bool(ev.get("after_close", False))
         results[event_id] = {}
         for firm in universe["firms"]:
             name = firm["name"]
@@ -130,6 +136,7 @@ def run_pilot(
                     tuple(pilot_cfg["estimation_window"]),
                     tuple(pilot_cfg["event_window"]),
                     pilot_cfg["min_estimation_days"],
+                    after_close,
                 )
             except EventStudyError as e:
                 msg = f"{name} / {event_id}: {e}"
@@ -148,6 +155,7 @@ def run_pilot(
                     window,
                     event_window,
                     pilot_cfg["min_estimation_days"],
+                    after_close,
                 )
             )
             rows.append(
@@ -199,6 +207,7 @@ def run_pilot(
                     window,
                     event_window,
                     pilot_cfg["min_estimation_days"],
+                    after_close,
                 )
             except EventStudyError as e:
                 msg = f"{pname} / {event_id}: {e}"
