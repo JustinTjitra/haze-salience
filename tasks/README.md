@@ -100,7 +100,7 @@ brief) · `done`
 | ID | Title | Tier | Depends | Needs | Status |
 | --- | --- | --- | --- | --- | --- |
 | [T201](T201-universe-idx.md) | Universe with IDX names | haiku | T113 | | ready |
-| [T202](T202-seasons-config.md) | Seasons configuration | haiku | | | ready |
+| [T202](T202-seasons-config.md) | Seasons configuration | haiku | | | done |
 | [T203](T203-season-abnormal-returns.md) | Season abnormal returns | sonnet | T202, T102 | | ready |
 | [T204](T204-returns-builder.md) | Returns builder per exchange | sonnet | T201 | | ready |
 | [T205](T205-psi-daily-measure.md) | PSI daily measure and streaks | haiku | | | ready |

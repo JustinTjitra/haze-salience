@@ -1,0 +1,4 @@
+# Defaults from the draft pre-registration; not frozen until prereg-v1.
+years: [2015, 2019, 2023, 2026]
+season_window: {start: "08-01", end: "11-30"}        # month-day, inclusive
+estimation_window: {start: "02-01", end: "06-30"}    # same year, inclusive
