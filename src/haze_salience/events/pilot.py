@@ -4,6 +4,7 @@ import logging
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 
+import numpy as np
 import pandas as pd
 
 from haze_salience.data.align import align_to_calendar, simple_returns
@@ -14,6 +15,7 @@ from haze_salience.events.market_model import (
     locate_day0,
 )
 from haze_salience.events.portfolio import long_short_return, portfolio_return
+from haze_salience.events.volume import abnormal_volume
 
 log = logging.getLogger(__name__)
 
@@ -36,6 +38,35 @@ def _cpo_betas(res: EventResult, lags: list[int], lag_cols: dict[int, str]) -> d
     return out
 
 
+def _abvol_cols(
+    volumes: pd.DataFrame,
+    ticker: str,
+    calendar: pd.DatetimeIndex,
+    event_date: str,
+    window: tuple[int, int],
+    event_window: tuple[int, int],
+    min_estimation_days: int,
+) -> dict[str, float]:
+    """`abvol_day0` (z at offset 0) and `abvol_0_1` (mean of z at offsets 0 and 1).
+
+    NaN when the ticker is missing from `volumes` or the abnormal-volume study cannot be run.
+    """
+    nan = {"abvol_day0": np.nan, "abvol_0_1": np.nan}
+    if ticker not in volumes.columns:
+        return nan
+    try:
+        z = abnormal_volume(
+            volumes[ticker].reindex(calendar),
+            event_date,
+            window,
+            event_window,
+            min_estimation_days,
+        )
+    except EventStudyError:
+        return nan
+    return {"abvol_day0": float(z.loc[0]), "abvol_0_1": float(z.loc[[0, 1]].mean())}
+
+
 def run_pilot(
     prices: pd.DataFrame,
     universe: dict,
@@ -43,11 +74,16 @@ def run_pilot(
     events: dict[str, dict],
     load_cpo: Callable[[], tuple[pd.Series, str]],
     cpo_lags: Sequence[int] = (0,),
+    volumes: pd.DataFrame | None = None,
 ) -> PilotOutput:
     """`prices` are wide closes (one column per ticker); `load_cpo` returns (series, label).
 
     `cpo_lags` lists the lags of the control's return used as factors: 0 is `cpo`, k > 0 is
     `cpo_lag{k}`, the control's return k SGX days earlier.
+
+    `volumes` are optional wide daily volumes (one column per ticker). When given, each firm row
+    gets `abvol_day0` and `abvol_0_1` and portfolio rows get NaN in both; when None the columns
+    are absent.
     """
     lags = list(cpo_lags)
     if any(k < 0 for k in lags):
@@ -101,6 +137,19 @@ def run_pilot(
                 skipped.append(msg)
                 continue
             results[event_id][name] = res
+            abvol = (
+                {}
+                if volumes is None
+                else _abvol_cols(
+                    volumes,
+                    firm["ticker"],
+                    calendar,
+                    ev["date"],
+                    window,
+                    event_window,
+                    pilot_cfg["min_estimation_days"],
+                )
+            )
             rows.append(
                 {
                     "event": event_id,
@@ -110,6 +159,7 @@ def run_pilot(
                     **res.summary(),
                     "beta_mkt": res.params["mkt"],
                     **_cpo_betas(res, lags, lag_cols),
+                    **abvol,
                 }
             )
 
@@ -166,6 +216,7 @@ def run_pilot(
                     **res.summary(),
                     "beta_mkt": res.params["mkt"],
                     **_cpo_betas(res, lags, lag_cols),
+                    **({} if volumes is None else {"abvol_day0": np.nan, "abvol_0_1": np.nan}),
                 }
             )
     return PilotOutput(

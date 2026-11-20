@@ -152,3 +152,71 @@ def test_bad_lags_raise(prices, bad):
     df, cpo = prices
     with pytest.raises(ValueError):
         run_pilot(df, UNIVERSE, CFG, EVENTS, lambda: (cpo, "test CPO"), cpo_lags=bad)
+
+
+def _volumes(cal, seed=42, sd=0.3):
+    """Lognormal daily volumes for the two firms, on the pilot calendar."""
+    rng = np.random.default_rng(seed)
+    return pd.DataFrame(
+        {t: np.exp(rng.normal(np.log(1e6), sd, len(cal))) for t in ("AAA.SI", "BBB.SI")},
+        index=cal,
+    )
+
+
+def test_volume_columns_present_when_given(prices):
+    df, cpo = prices
+    vol = _volumes(df.index)
+    vol.loc[pd.Timestamp("2026-10-16"), "AAA.SI"] *= 5
+    out = run_pilot(df, UNIVERSE, CFG, EVENTS, lambda: (cpo, "test CPO"), volumes=vol)
+    s = out.summary.set_index(["event", "firm"])
+    assert s.loc[("e2", "Named Co"), "abvol_day0"] > 3
+    assert -3 < s.loc[("e2", "Other Co"), "abvol_day0"] < 3
+    port = out.summary[out.summary["kind"] == "portfolio"]
+    assert port["abvol_day0"].isna().all() and port["abvol_0_1"].isna().all()
+    firm = out.summary[out.summary["kind"] == "firm"]
+    assert firm[["abvol_day0", "abvol_0_1"]].notna().all().all()
+
+
+def test_volume_columns_absent_by_default(prices):
+    df, cpo = prices
+    out = run_pilot(df, UNIVERSE, CFG, EVENTS, lambda: (cpo, "test CPO"))
+    assert "abvol_day0" not in out.summary.columns
+    assert "abvol_0_1" not in out.summary.columns
+
+
+def test_abvol_0_1_is_mean_of_offsets_zero_and_one(prices):
+    from haze_salience.events.volume import abnormal_volume
+
+    df, cpo = prices
+    vol = _volumes(df.index)
+    out = run_pilot(df, UNIVERSE, CFG, EVENTS, lambda: (cpo, "test CPO"), volumes=vol)
+    row = out.summary.set_index(["event", "firm"]).loc[("e2", "Other Co")]
+    z = abnormal_volume(
+        vol["BBB.SI"],
+        "2026-10-16",
+        tuple(CFG["estimation_window"]),
+        tuple(CFG["event_window"]),
+        100,
+    )
+    assert row["abvol_day0"] == pytest.approx(z.loc[0])
+    assert row["abvol_0_1"] == pytest.approx((z.loc[0] + z.loc[1]) / 2)
+
+
+def test_missing_volume_ticker_gives_nan(prices):
+    df, cpo = prices
+    vol = _volumes(df.index)[["AAA.SI"]]  # no column for "Other Co"
+    out = run_pilot(df, UNIVERSE, CFG, EVENTS, lambda: (cpo, "test CPO"), volumes=vol)
+    other = out.summary[(out.summary["kind"] == "firm") & (out.summary["firm"] == "Other Co")]
+    assert other[["abvol_day0", "abvol_0_1"]].isna().all().all()
+    named = out.summary[(out.summary["kind"] == "firm") & (out.summary["firm"] == "Named Co")]
+    assert named[["abvol_day0", "abvol_0_1"]].notna().all().all()
+
+
+def test_volume_study_error_gives_nan(prices):
+    df, cpo = prices
+    vol = _volumes(df.index)
+    vol["BBB.SI"] = 1e6  # constant volume: zero estimation variance, so the study fails
+    out = run_pilot(df, UNIVERSE, CFG, EVENTS, lambda: (cpo, "test CPO"), volumes=vol)
+    other = out.summary[(out.summary["kind"] == "firm") & (out.summary["firm"] == "Other Co")]
+    assert other[["abvol_day0", "abvol_0_1"]].isna().all().all()
+    assert out.skipped == []

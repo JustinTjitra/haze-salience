@@ -38,6 +38,11 @@ def cmd_pilot() -> None:
 
     universe, pilot, events = load_yaml("universe.yaml"), load_yaml("pilot.yaml"), load_events()
     prices = prices_mod.load_prices(RAW)
+    try:
+        volumes = prices_mod.load_volumes(RAW)
+    except FileNotFoundError:
+        volumes = None
+        print("Volume not available: no cached volumes, so no abnormal volume columns.")
     fallback = pilot["cpo"]["fallback_ticker"]
     manual = ROOT / pilot["cpo"]["manual_csv"]
     lags = pilot["cpo"]["manual_lags" if manual.exists() else "fallback_lags"]
@@ -48,6 +53,7 @@ def cmd_pilot() -> None:
         events,
         lambda: cpo_mod.load_cpo(manual, lambda: prices[fallback].dropna()),
         cpo_lags=lags,
+        volumes=volumes,
     )
     if out.summary.empty:
         sys.exit("No firm/event produced a result; see warnings above.")
