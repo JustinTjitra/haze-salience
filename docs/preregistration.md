@@ -36,6 +36,11 @@ before freezing; the default is a starting point, not a recommendation from the 
 
 - **Detections:** VIIRS S-NPP 375 m (available from 2012, so all four seasons use the same sensor).
   NOAA-20 and MODIS are robustness checks only.
+  **DECIDE (added 20 Nov 2026):** source research suggests S-NPP stopped delivering fire data on
+  1 to 2 Nov 2026 and was non-nominal from July 2026, which would leave the 2026 season short. If
+  that is confirmed, choose one sensor rule for all seasons: MODIS (Terra and Aqua) throughout, or
+  NOAA-20 for 2019 onward with MODIS for 2015. Mixing sensors across seasons changes detection
+  rates, so season fixed effects are then doing real work.
 - **Confidence filter:** nominal + high; low-confidence detections are dropped.
 - **Exposure:** Fire<sub>i,t</sub> = hotspots inside firm *i*'s concessions on day *t* ÷ (total concession
   area in ha ÷ 1,000).
@@ -61,6 +66,11 @@ AR_{i,t} = α_i + Σ_{k=1}^{10} β_k Fire_{i,t−k} + γ (Fire_{i,t−1} × High
 - Firm and season fixed effects.
 - Standard errors clustered by date. Because there are fewer than 20 firms, wild-cluster bootstrap
   p-values (clustered by date, Webb weights, 9,999 replications) are the reported inference.
+  **DECIDE (added 20 Nov 2026):** a methods review argued that date-clustering alone can understate
+  standard errors if exposure and residuals are serially correlated within a firm, and suggested
+  two-way (firm and date) clustering or Driscoll-Kraay errors as the main inference, with a
+  firm-level wild bootstrap as the check. Pick one before freezing. Note the available Python
+  package (`wildboottest`) supports one-way clustering only.
 
 ## 6. Hypothesis tests (the only confirmatory tests)
 

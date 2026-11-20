@@ -1,5 +1,9 @@
-# Hand-coded attention events. Dates are local (SGT) calendar dates; the pilot maps each to
-# the first SGX trading day on or after it. Add events here as they are found (H3 uses them).
+# Hand-coded attention events. Dates are Singapore calendar dates. Day 0 for an event is the first
+# SGX trading day on or after its date (strictly after, if `after_close: true`).
+#
+# Owner-curated: this file is protected from the task loop. An event may be used in a reported
+# result only once `verified: true`, which means the owner has opened the original source.
+# Leads for verification: reports/Haze salience project sources.md (event timeline section).
 events:
   - id: greenpeace_2026
     date: 2026-10-05
@@ -7,15 +11,29 @@ events:
     label: Greenpeace report
     description: Greenpeace links First Resources and Bumitama Agri to concessions with detected fires.
     source: https://drwealth.com/?p=146214552
+    firms_named: [First Resources, Bumitama Agri]
+    verified: false
+    confounds: >-
+      Press summaries (unverified) say Singapore's run of unhealthy PSI days also began on 5 Oct,
+      and that Singapore coverage of the report dates from about 15 Oct. If so, this date mixes an
+      NGO report with the start of the haze streak.
+    notes: Exact report title and first public release date not yet confirmed.
   - id: psi_unhealthy_2026
-    date: 2026-10-13
+    date: 2026-10-05
     kind: salience
-    label: PSI unhealthy run
-    description: Singapore 24-hour PSI in the unhealthy range, part of a 12-day run (approximate start; confirm against NEA data).
+    label: PSI unhealthy run begins
+    description: Start of the run of consecutive days with 24-hour PSI above 100 (day 12 fell on 16 Oct per press summaries).
     source: https://asianews.network/?p=308529
+    verified: false
+    notes: Recompute the streak from NEA data (task T205) before using. First unhealthy reading of 2026 was reportedly 4 Sep.
   - id: pm_statement_2026
     date: 2026-10-16
     kind: government
     label: PM statement
     description: PM Lawrence Wong says Singapore is looking into which firms are responsible.
     source: https://longbridge.com/en/news/302043938
+    verified: false
+    notes: >-
+      Press summaries (unverified) say this was a Facebook post on the evening of Thu 15 Oct, after
+      the SGX close, with the share fall on Fri 16 Oct. If confirmed, record it as date 2026-10-15
+      with after_close true once task T111 is done; day 0 stays 16 Oct either way.

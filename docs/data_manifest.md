@@ -11,10 +11,19 @@ redistributing anything.
 | Bursa FCPO | Investing.com or Barchart daily history | Manual download, see below | `data/raw/manual/fcpo.csv` | 1 | **Manual** |
 | Fire hotspots | NASA FIRMS (VIIRS S-NPP, MODIS) | API with free MAP_KEY | `data/raw/firms/` | 2 | Not started |
 | Concessions | Global Forest Watch oil palm concessions | Download | `data/raw/concessions/` | 2 | Not started |
-| Concession to parent | Annual and sustainability reports, RSPO | Hand-built table with confidence per link | `data/raw/manual/parents.csv` | 2 | Not started |
+| Concession to parent | Annual and sustainability reports, RSPO | Hand-built table with confidence per link; the project's own work, so it **is** committed | `config/parents.csv` | 2 | Not started |
 | IDX prices, JCI | Yahoo Finance or IDX downloads | TBD | `data/raw/` | 2 | Not started |
 | PSI | NEA via data.gov.sg | API | `data/raw/psi/` | 2 | Archive depth unknown, check 2015 coverage first |
 | Wind | ERA5 (Copernicus CDS) | CDS API | `data/raw/era5/` | 3 | Not started |
+
+## Manual data and the task loop
+
+Files under `data/raw/manual/` exist only on the machine where they were downloaded. The scheduled
+task loop runs in a fresh cloud container and never sees them. So the loop's pilot run uses the
+soybean-oil fallback, and the run with FCPO has to be done locally by the owner. The same applies
+to FIRMS archive extracts, which arrive by emailed link.
+
+Source details and what is still unverified: [`../reports/Haze salience project sources.md`](../reports/Haze%20salience%20project%20sources.md).
 
 ## Bursa FCPO CSV
 
