@@ -92,7 +92,7 @@ brief) · `done`
 | [T112](T112-fetch-coverage-report.md) | Fetch coverage report | haiku | T108 | | done |
 | [T113](T113-pilot-report.md) | Pilot report writer | haiku | T106, T111 | | ready |
 | [T114](T114-pilot-real-data-run.md) | Real-data pilot run | planner | T112, T113 | Network: Yahoo Finance | ready |
-| [T115](T115-feasibility-check.md) | Feasibility check on live pages (concessions, FIRMS, PSI) | planner | | Network | ready |
+| [T115](T115-feasibility-check.md) | Feasibility check on live pages (concessions, FIRMS, PSI) | planner | | Network | done |
 | G1 | Go/no-go (owner, O4) | owner | T114, T115 | | waiting |
 
 ### Phase 2: infrastructure both stories need
