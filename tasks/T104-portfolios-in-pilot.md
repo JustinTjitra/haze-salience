@@ -39,7 +39,17 @@ In `run_pilot`, after the firm loop for each event:
   is skipped too (fewer than 2 members).
 - `test_run_pilot_end_to_end` still passes; update its `len(out.summary) == 4` assertion to count
   firm rows only.
+- `test_short_history_firm_is_skipped_not_fatal` (existing): its two assertions were written
+  when the summary and `skipped` held firms only, and they contradict this spec ("Named" is built
+  from one member; three portfolios are skipped per event). Keep their meaning by scoping them to
+  firms, and pin the new total: firm rows of the summary are exactly `{"Named Co"}`; exactly 2
+  messages in `skipped` start with `"Other Co / "`; `len(out.skipped) == 8` (2 firm skips plus 3
+  portfolio skips for each of the 2 events).
 - The figure test still passes and `plot_pilot` draws firm lines only.
+
+## Planner note (run 2, 20 Nov)
+The first version of this brief missed the conflict with `test_short_history_firm_is_skipped_not_fatal`.
+The coder stopped and reported it instead of editing the test; the bullet above is the repair.
 
 ## Out of scope
 New statistics, report text, CLI output changes.
