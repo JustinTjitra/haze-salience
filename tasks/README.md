@@ -78,7 +78,7 @@ brief) · `done`
 
 | ID | Title | Tier | Depends | Needs | Status |
 | --- | --- | --- | --- | --- | --- |
-| [T101](T101-ci-workflow.md) | CI workflow | haiku | | | ready |
+| [T101](T101-ci-workflow.md) | CI workflow | haiku | | | done |
 | [T102](T102-forecast-error-variance.md) | Forecast-error variance and residuals | sonnet | | | done |
 | [T103](T103-portfolio-returns.md) | Portfolio returns | sonnet | | | done |
 | [T104](T104-portfolios-in-pilot.md) | Portfolios in the pilot | sonnet | T103 | | ready |
