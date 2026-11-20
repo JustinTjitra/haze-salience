@@ -1,0 +1,12 @@
+# Paths the task loop must not modify. One path or glob per line.
+# Only the owner changes these (directly, or by asking for it in an interactive session).
+docs/design.md
+docs/preregistration.md
+config/events.yaml
+tasks/PROTECTED.txt
+tasks/DECISIONS.md
+CLAUDE.md
+LICENSE
+README.md
+research_notes/**
+reports/**

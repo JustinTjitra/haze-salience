@@ -9,7 +9,7 @@ minister said the government was looking into which firms were responsible. This
 that lag directly: the underlying information is observable from space, timestamped daily and public,
 which makes it a clean test of gradual information diffusion (Hong and Stein 1999).
 
-Full research design: [`docs/design.md`](docs/design.md).
+Full research design: [`docs/design.md`](docs/design.md). Working plan: [`docs/PROJECT_GUIDE.md`](docs/PROJECT_GUIDE.md). Task board: [`tasks/README.md`](tasks/README.md).
 
 ## Status
 
