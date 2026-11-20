@@ -86,7 +86,7 @@ brief) · `done`
 | [T106](T106-summary-short-windows.md) | Short windows and p-values in the summary | haiku | T102, T105 | | done |
 | [T107](T107-lagged-control.md) | Lagged control term | sonnet | T104 | | done |
 | [T108](T108-volume-fetch.md) | Volume fetch and cache | haiku | | | done |
-| [T109](T109-abnormal-volume.md) | Abnormal volume | haiku | | | ready |
+| [T109](T109-abnormal-volume.md) | Abnormal volume | haiku | | | done |
 | [T110](T110-volume-in-pilot.md) | Volume in the pilot | haiku | T107, T108, T109 | | ready |
 | [T111](T111-after-close-day0.md) | After-close day-0 rule | haiku | T110 | | ready |
 | [T112](T112-fetch-coverage-report.md) | Fetch coverage report | haiku | T108 | | ready |
