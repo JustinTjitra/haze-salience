@@ -18,9 +18,12 @@ def cmd_fetch() -> None:
     universe, pilot = load_yaml("universe.yaml"), load_yaml("pilot.yaml")
     tickers = [f["ticker"] for f in universe["firms"]]
     tickers += [universe["market_index"]["ticker"], pilot["cpo"]["fallback_ticker"]]
-    df = prices_mod.fetch_prices(tickers, str(pilot["fetch_start"]), str(pilot["fetch_end"]))
-    path = prices_mod.save_prices(df, RAW)
-    print(f"Saved {df.shape[1]} series x {df.shape[0]} days to {path.relative_to(ROOT)}")
+    frames = prices_mod.fetch_ohlcv(tickers, str(pilot["fetch_start"]), str(pilot["fetch_end"]))
+    close, volume = frames["close"], frames["volume"]
+    path = prices_mod.save_prices(close, RAW)
+    vol_path = prices_mod.save_volumes(volume, RAW)
+    print(f"Saved {close.shape[1]} series x {close.shape[0]} days to {path.relative_to(ROOT)}")
+    print(f"Saved volumes for {volume.shape[1]} series to {vol_path.relative_to(ROOT)}")
 
 
 def cmd_pilot() -> None:
