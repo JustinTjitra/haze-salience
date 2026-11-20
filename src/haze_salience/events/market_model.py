@@ -24,6 +24,24 @@ class EventStudyError(ValueError):
     pass
 
 
+def _forecast_error(
+    firm: pd.Series,
+    factors: pd.DataFrame,
+    positions: np.ndarray,
+    params: np.ndarray,
+    X_fit: np.ndarray,
+    sigma: float,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Abnormal return and its forecast SE at integer `positions` of the shared index.
+
+    AR = y - x'b; SE = sigma * sqrt(1 + x' (X'X)^-1 x) with X_fit the rows used in the fit.
+    """
+    xw = sm.add_constant(factors, has_constant="add").iloc[positions].to_numpy(dtype=float)
+    ar = firm.iloc[positions].to_numpy() - xw @ params
+    leverage = np.einsum("ij,ji->i", xw, np.linalg.pinv(X_fit.T @ X_fit) @ xw.T)
+    return ar, sigma * np.sqrt(1.0 + leverage)
+
+
 def _sum_offsets(ar: pd.Series, offsets: range) -> float:
     """Sum of `ar` over `offsets`; NaN if any of those offsets is outside the window or NaN."""
     vals = ar.reindex(list(offsets)).to_numpy(dtype=float)
@@ -126,21 +144,18 @@ def event_study(
     offsets = pd.RangeIndex(win_lo, win_hi + 1, name="offset")
     positions = day0 + np.asarray(offsets)
     in_range = (positions >= 0) & (positions < len(index))
-    Xw = sm.add_constant(factors, has_constant="add").iloc[positions[in_range]]
-    ar_vals = firm.iloc[positions[in_range]].to_numpy() - Xw.to_numpy() @ fit.params.to_numpy()
+    X_fit = X[valid].to_numpy(dtype=float)
+    ar_vals, se_vals = _forecast_error(
+        firm, factors, positions[in_range], fit.params.to_numpy(), X_fit, sigma
+    )
     ar = pd.Series(np.nan, index=offsets, name="ar")
     ar[in_range] = ar_vals
     car = ar.cumsum().rename("car")
     band = pd.Series(
         1.96 * sigma * np.sqrt(np.arange(1, len(offsets) + 1)), index=offsets, name="band"
     )
-
-    # Forecast SE: sigma * sqrt(1 + x' (X'X)^-1 x) with X the rows used in the fit.
-    X_fit = X[valid].to_numpy(dtype=float)
     ar_se = pd.Series(np.nan, index=offsets, name="ar_se")
-    xw = Xw.to_numpy(dtype=float)
-    leverage = np.einsum("ij,ji->i", xw, np.linalg.pinv(X_fit.T @ X_fit) @ xw.T)
-    ar_se[in_range] = sigma * np.sqrt(1.0 + leverage)
+    ar_se[in_range] = se_vals
     resid = fit.resid.rename("resid")
 
     return EventResult(
