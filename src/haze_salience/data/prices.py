@@ -74,3 +74,50 @@ def save_volumes(volumes: pd.DataFrame, cache_dir: str | Path) -> Path:
 
 def load_volumes(cache_dir: str | Path) -> pd.DataFrame:
     return load_frame(cache_dir, VOLUMES)
+
+
+EARLY_END_DAYS = 7
+
+
+def coverage_report(prices: pd.DataFrame) -> pd.DataFrame:
+    """Per-ticker history coverage, one row per column of `prices`.
+
+    Columns: `first_date` and `last_date` (first and last non-NaN dates, NaT if the column
+    is all NaN), `n_obs` (non-NaN count), `n_missing` (NaN count between first_date and
+    last_date inclusive) and `ends_early` (True if last_date is more than 7 calendar days
+    before the frame's last index date, or if the column has no data at all).
+    """
+    frame_end = pd.Timestamp(prices.index.max()) if len(prices.index) else pd.NaT
+    rows = []
+    for ticker in prices.columns:
+        s = prices[ticker]
+        valid = s.dropna()
+        if valid.empty:
+            first = last = pd.NaT
+            n_missing = 0
+            ends_early = True
+        else:
+            first, last = valid.index.min(), valid.index.max()
+            in_span = (s.index >= first) & (s.index <= last)
+            n_missing = int(s[in_span].isna().sum())
+            ends_early = bool((frame_end - last) > pd.Timedelta(days=EARLY_END_DAYS))
+        rows.append(
+            {
+                "first_date": first,
+                "last_date": last,
+                "n_obs": int(len(valid)),
+                "n_missing": n_missing,
+                "ends_early": ends_early,
+            }
+        )
+    out = pd.DataFrame(
+        rows,
+        index=pd.Index(list(prices.columns), name="ticker"),
+        columns=["first_date", "last_date", "n_obs", "n_missing", "ends_early"],
+    )
+    out["first_date"] = pd.to_datetime(out["first_date"])
+    out["last_date"] = pd.to_datetime(out["last_date"])
+    out["n_obs"] = out["n_obs"].astype("int64")
+    out["n_missing"] = out["n_missing"].astype("int64")
+    out["ends_early"] = out["ends_early"].astype(bool)
+    return out

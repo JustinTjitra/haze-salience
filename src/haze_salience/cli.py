@@ -24,6 +24,12 @@ def cmd_fetch() -> None:
     vol_path = prices_mod.save_volumes(volume, RAW)
     print(f"Saved {close.shape[1]} series x {close.shape[0]} days to {path.relative_to(ROOT)}")
     print(f"Saved volumes for {volume.shape[1]} series to {vol_path.relative_to(ROOT)}")
+    report = prices_mod.coverage_report(close)
+    report_path = RAW / "fetch_report.csv"
+    report.to_csv(report_path)
+    with pd.option_context("display.width", 160, "display.max_columns", None):
+        print(f"Coverage (ends_early = last date more than 7 days before the frame end):\n{report}")
+    print(f"Wrote {report_path.relative_to(ROOT)}")
 
 
 def cmd_pilot() -> None:

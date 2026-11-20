@@ -3,6 +3,7 @@ import pytest
 import yfinance
 
 from haze_salience.data.prices import (
+    coverage_report,
     fetch_ohlcv,
     load_prices,
     load_volumes,
@@ -100,3 +101,70 @@ def test_volume_round_trip(tmp_path):
 def test_missing_volume_cache_points_to_make_data(tmp_path):
     with pytest.raises(FileNotFoundError, match="make data"):
         load_volumes(tmp_path)
+
+
+def _coverage_frame():
+    idx = pd.date_range("2026-10-01", periods=30, freq="D")  # last index date 2026-10-30
+    values = [float(i) for i in range(30)]
+    full = pd.Series(values, index=idx)
+    gap = pd.Series(values, index=idx)
+    gap.iloc[[10, 11]] = float("nan")  # two interior NaN, dates 2026-10-11 and 2026-10-12
+    early = pd.Series(values, index=idx)
+    early.iloc[16:] = float("nan")  # last value 2026-10-16, two weeks before the frame end
+    return pd.DataFrame({"FULL": full, "GAP": gap, "EARLY": early})
+
+
+def test_coverage_report_counts():
+    report = coverage_report(_coverage_frame())
+
+    assert list(report.index) == ["FULL", "GAP", "EARLY"]
+    assert list(report.columns) == ["first_date", "last_date", "n_obs", "n_missing", "ends_early"]
+
+    full = report.loc["FULL"]
+    assert full["first_date"] == pd.Timestamp("2026-10-01")
+    assert full["last_date"] == pd.Timestamp("2026-10-30")
+    assert full["n_obs"] == 30
+    assert full["n_missing"] == 0
+    assert bool(full["ends_early"]) is False
+
+    gap = report.loc["GAP"]
+    assert gap["first_date"] == pd.Timestamp("2026-10-01")
+    assert gap["last_date"] == pd.Timestamp("2026-10-30")
+    assert gap["n_obs"] == 28
+    assert gap["n_missing"] == 2
+    assert bool(gap["ends_early"]) is False
+
+    early = report.loc["EARLY"]
+    assert early["first_date"] == pd.Timestamp("2026-10-01")
+    assert early["last_date"] == pd.Timestamp("2026-10-16")
+    assert early["n_obs"] == 16
+    assert early["n_missing"] == 0
+    assert bool(early["ends_early"]) is True
+
+
+def test_coverage_report_all_nan_column():
+    idx = pd.date_range("2026-10-01", periods=5, freq="D")
+    prices = pd.DataFrame({"DEAD": [float("nan")] * 5, "OK": [1.0] * 5}, index=idx)
+
+    report = coverage_report(prices)
+
+    dead = report.loc["DEAD"]
+    assert pd.isna(dead["first_date"])
+    assert pd.isna(dead["last_date"])
+    assert dead["n_obs"] == 0
+    assert dead["n_missing"] == 0
+    assert bool(dead["ends_early"]) is True
+    assert report.loc["OK", "n_obs"] == 5
+
+
+def test_coverage_report_ends_early_threshold_is_strictly_over_seven_days():
+    idx = pd.date_range("2026-10-01", periods=20, freq="D")  # last index date 2026-10-20
+    seven = pd.Series(1.0, index=idx)
+    seven.iloc[13:] = float("nan")  # last value 2026-10-13: exactly 7 days early
+    eight = pd.Series(1.0, index=idx)
+    eight.iloc[12:] = float("nan")  # last value 2026-10-12: 8 days early
+    report = coverage_report(pd.DataFrame({"SEVEN": seven, "EIGHT": eight}, index=idx))
+
+    assert pd.Timestamp(report.loc["SEVEN", "last_date"]) == pd.Timestamp("2026-10-13")
+    assert bool(report.loc["SEVEN", "ends_early"]) is False
+    assert bool(report.loc["EIGHT", "ends_early"]) is True
