@@ -31,10 +31,20 @@ def abnormal_volume(
 
 ## Acceptance tests
 - `test_spike_is_detected`: seeded log-normal volume (sd 0.3 in logs) with day 0 multiplied by 5;
-  z at offset 0 is `approx(log(5) / 0.3, abs=1.0)` and larger than every other offset.
+  z at offset 0 is `approx(log(5) / 0.3, abs=3.0)` and larger than every other offset.
+- `test_known_answer_z_scores`: a hand-written series whose estimation-window logs have a known
+  mean and SD; the z-scores equal the hand-computed values exactly (`pytest.approx` default).
 - `test_offsets_and_index_name`: index is `range(lo, hi + 1)` and named `offset`.
 - `test_zero_volume_is_nan`: a zero-volume day in the event window gives NaN there only.
 - `test_too_few_estimation_days_raises` and `test_window_before_data_raises`.
 
 ## Out of scope
 Wiring into the pilot (T110), turnover (needs shares outstanding), plots.
+
+## Planner note (run 3, 20 Nov)
+The first version asked for `abs=1.0` in `test_spike_is_detected`. Day 0 carries its own noise:
+its log volume has sd 0.3, which is 1.0 in z units, so `abs=1.0` was a one-standard-deviation
+band (the coder measured a 64% pass rate over 2000 seeds and stopped instead of picking a seed).
+The tolerance is now 3.0 (about three standard deviations), and the exact check moved to the
+known-answer test, which the coder had already written. Raising `EventStudyError` on zero
+estimation-window variance is accepted as part of this task.
