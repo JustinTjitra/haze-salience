@@ -33,14 +33,15 @@ def cmd_pilot() -> None:
     universe, pilot, events = load_yaml("universe.yaml"), load_yaml("pilot.yaml"), load_events()
     prices = prices_mod.load_prices(RAW)
     fallback = pilot["cpo"]["fallback_ticker"]
+    manual = ROOT / pilot["cpo"]["manual_csv"]
+    lags = pilot["cpo"]["manual_lags" if manual.exists() else "fallback_lags"]
     out = run_pilot(
         prices,
         universe,
         pilot,
         events,
-        lambda: cpo_mod.load_cpo(
-            ROOT / pilot["cpo"]["manual_csv"], lambda: prices[fallback].dropna()
-        ),
+        lambda: cpo_mod.load_cpo(manual, lambda: prices[fallback].dropna()),
+        cpo_lags=lags,
     )
     if out.summary.empty:
         sys.exit("No firm/event produced a result; see warnings above.")

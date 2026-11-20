@@ -103,3 +103,52 @@ def test_portfolio_members_exclude_skipped_firms(prices):
         assert set(out.portfolios[event_id]) == {"Named"}
         for name in ("All firms", "Not named", "Named minus not named"):
             assert any(m.startswith(f"{name} / {event_id}") for m in out.skipped)
+
+
+@pytest.fixture
+def lagged_prices():
+    """Firm 'Named Co' returns load 0.4 on today's CPO return and 0.5 on yesterday's."""
+    rng = np.random.default_rng(11)
+    cal = pd.bdate_range("2025-12-01", "2026-11-06")
+    n = len(cal)
+    mkt = rng.normal(0, 0.008, n)
+    cpo = rng.normal(0, 0.015, n)
+    cpo_prev = np.concatenate([[0.0], cpo[:-1]])
+    a = 1.0 * mkt + 0.4 * cpo + 0.5 * cpo_prev + rng.normal(0, 0.005, n)
+    b = 0.8 * mkt + rng.normal(0, 0.01, n)
+    to_level = lambda r: 100 * np.cumprod(1 + r)  # noqa: E731
+    df = pd.DataFrame(
+        {"^STI": to_level(mkt), "AAA.SI": to_level(a), "BBB.SI": to_level(b)}, index=cal
+    )
+    return df, pd.Series(to_level(cpo), index=cal)
+
+
+def test_default_has_no_lag_columns(prices):
+    df, cpo = prices
+    out = run_pilot(df, UNIVERSE, CFG, EVENTS, lambda: (cpo, "test CPO"))
+    assert "beta_cpo_lag1" not in out.summary.columns
+    assert "beta_cpo" in out.summary.columns
+    assert out.control_label == "test CPO"
+
+
+def test_lagged_control_is_recovered(lagged_prices):
+    df, cpo = lagged_prices
+    out = run_pilot(df, UNIVERSE, CFG, EVENTS, lambda: (cpo, "test CPO"), cpo_lags=(0, 1))
+    row = out.summary.set_index(["event", "firm"]).loc[("e1", "Named Co")]
+    assert row["beta_cpo_lag1"] == pytest.approx(0.5, abs=0.15)
+    assert row["beta_cpo"] == pytest.approx(0.4, abs=0.15)
+    assert "beta_cpo_lag1" in out.summary.columns
+    assert out.summary["beta_cpo_lag1"].notna().all()
+
+
+def test_label_mentions_lags(lagged_prices):
+    df, cpo = lagged_prices
+    out = run_pilot(df, UNIVERSE, CFG, EVENTS, lambda: (cpo, "test CPO"), cpo_lags=(0, 1))
+    assert out.control_label == "test CPO + lags 1"
+
+
+@pytest.mark.parametrize("bad", [(-1,), (0, 0)])
+def test_bad_lags_raise(prices, bad):
+    df, cpo = prices
+    with pytest.raises(ValueError):
+        run_pilot(df, UNIVERSE, CFG, EVENTS, lambda: (cpo, "test CPO"), cpo_lags=bad)

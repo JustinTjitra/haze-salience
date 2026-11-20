@@ -13,5 +13,8 @@ fetch_end: 2026-11-07
 cpo:
   manual_csv: data/raw/manual/fcpo.csv   # Bursa FCPO daily; see docs/data_manifest.md
   fallback_ticker: ZL=F                  # CBOT soybean oil, used only if the CSV is missing
+  manual_lags: [0]                       # control lags in the market model with the FCPO CSV
+  # CBOT settles after SGX closes, so an SGX day's return overlaps two CBOT sessions.
+  fallback_lags: [0, 1]                  # control lags in the market model with the fallback
 
 figure: outputs/figures/pilot_car.png

@@ -1,7 +1,7 @@
 """Stage 1 pilot: CARs for the SGX names around each pilot event."""
 
 import logging
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 
 import pandas as pd
@@ -30,25 +30,49 @@ class PilotOutput:
     # event id -> portfolio name -> result
 
 
+def _cpo_betas(res: EventResult, lags: list[int], lag_cols: dict[int, str]) -> dict[str, float]:
+    out = {"beta_cpo": res.params["cpo"]} if 0 in lags else {}
+    out.update({f"beta_{col}": res.params[col] for col in lag_cols.values()})
+    return out
+
+
 def run_pilot(
     prices: pd.DataFrame,
     universe: dict,
     pilot_cfg: dict,
     events: dict[str, dict],
     load_cpo: Callable[[], tuple[pd.Series, str]],
+    cpo_lags: Sequence[int] = (0,),
 ) -> PilotOutput:
-    """`prices` are wide closes (one column per ticker); `load_cpo` returns (series, label)."""
+    """`prices` are wide closes (one column per ticker); `load_cpo` returns (series, label).
+
+    `cpo_lags` lists the lags of the control's return used as factors: 0 is `cpo`, k > 0 is
+    `cpo_lag{k}`, the control's return k SGX days earlier.
+    """
+    lags = list(cpo_lags)
+    if any(k < 0 for k in lags):
+        raise ValueError(f"cpo_lags must be non-negative, got {lags}")
+    if len(set(lags)) != len(lags):
+        raise ValueError(f"cpo_lags must not contain duplicates, got {lags}")
     index_ticker = universe["market_index"]["ticker"]
     calendar = prices[index_ticker].dropna().index  # SGX trading days
 
     cpo, control_label = load_cpo()
+    extra_lags = [k for k in lags if k > 0]
+    if extra_lags:
+        control_label += " + lags " + ", ".join(str(k) for k in extra_lags)
     levels = pd.DataFrame(
         {f["name"]: prices[f["ticker"]].reindex(calendar) for f in universe["firms"]}
     )
     levels["mkt"] = prices[index_ticker].reindex(calendar)
     levels["cpo"] = align_to_calendar(calendar, cpo)
     rets = simple_returns(levels)
-    factors = rets[["mkt", "cpo"]]
+    factors = rets[["mkt", "cpo"]].copy()
+    lag_cols = {k: f"cpo_lag{k}" for k in extra_lags}
+    for k, col in lag_cols.items():
+        factors[col] = rets["cpo"].shift(k)
+    if 0 not in lags:
+        factors = factors.drop(columns="cpo")
 
     results: dict[str, dict[str, EventResult]] = {}
     portfolios: dict[str, dict[str, EventResult]] = {}
@@ -85,7 +109,7 @@ def run_pilot(
                     "greenpeace_named": firm.get("greenpeace_named_2026", False),
                     **res.summary(),
                     "beta_mkt": res.params["mkt"],
-                    "beta_cpo": res.params["cpo"],
+                    **_cpo_betas(res, lags, lag_cols),
                 }
             )
 
@@ -141,7 +165,7 @@ def run_pilot(
                     "n_members": n_members,
                     **res.summary(),
                     "beta_mkt": res.params["mkt"],
-                    "beta_cpo": res.params["cpo"],
+                    **_cpo_betas(res, lags, lag_cols),
                 }
             )
     return PilotOutput(
