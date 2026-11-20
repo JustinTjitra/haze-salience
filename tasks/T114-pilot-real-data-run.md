@@ -1,13 +1,13 @@
 # T114 Real-data pilot run
 
-Tier: planner · Depends: T112, T113 · Needs: network access to Yahoo Finance (owner action O2)
+Tier: planner · Depends: T112, T113 · Needs: network access to Yahoo Finance (allowed since 20 Nov 2026)
 
 ## Goal
 The Stage 1 pilot outputs, produced from real data, are committed for the owner's go/no-go.
 
 ## Steps
 1. Check access: one request to `https://query1.finance.yahoo.com`. If the proxy refuses it, leave
-   this task `waiting` and log that O2 is still open. Do not try other routes.
+   this task `waiting` and log the refusal. Do not try other routes.
 2. `make data`. Read the coverage report. If a ticker fails or `ends_early` is true, do not edit
    the universe: record it in the log for the owner and continue with the firms that loaded
    (remove nothing from config; the pilot skips firms without data).

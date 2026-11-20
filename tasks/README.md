@@ -64,7 +64,7 @@ brief) · `done`
 | ID | Action | Why | Status |
 | --- | --- | --- | --- |
 | O1 | Verify the 2026 events against original sources and update `config/events.yaml` (`verified: true`, correct dates). Leads are in `reports/Haze salience project sources.md` | Results may only use verified events | open |
-| O2 | Approve network access for the data hosts (Yahoo Finance first) | The loop cannot fetch real data without it | open |
+| O2 | Approve network access for the data hosts | The loop cannot fetch real data without it | done 20 Nov: environment `haze-salience` allows Yahoo Finance, FIRMS, Global Forest Watch, data.gov.sg, Crossref |
 | O3 | Download the Bursa FCPO CSV and run `make pilot` locally; commit the outputs | Manual data never reaches the cloud loop, which can only use the soybean-oil fallback | open |
 | O4 | Decide G1 (go/no-go) in `tasks/DECISIONS.md` by 29 Nov | Opens or closes Phase 3 | open |
 | O5 | Build the concession-to-parent table (`config/parents.csv`) | Highest-effort input; only after G1 = go | open |
@@ -91,8 +91,9 @@ brief) · `done`
 | [T111](T111-after-close-day0.md) | After-close day-0 rule | haiku | T110 | | ready |
 | [T112](T112-fetch-coverage-report.md) | Fetch coverage report | haiku | T108 | | ready |
 | [T113](T113-pilot-report.md) | Pilot report writer | haiku | T106, T111 | | ready |
-| [T114](T114-pilot-real-data-run.md) | Real-data pilot run | planner | T112, T113 | Network: Yahoo Finance (O2) | waiting |
-| G1 | Go/no-go (owner, O4) | owner | T114 | | waiting |
+| [T114](T114-pilot-real-data-run.md) | Real-data pilot run | planner | T112, T113 | Network: Yahoo Finance | ready |
+| [T115](T115-feasibility-check.md) | Feasibility check on live pages (concessions, FIRMS, PSI) | planner | | Network | ready |
+| G1 | Go/no-go (owner, O4) | owner | T114, T115 | | waiting |
 
 ### Phase 2: infrastructure both stories need
 
@@ -105,7 +106,7 @@ brief) · `done`
 | [T205](T205-psi-daily-measure.md) | PSI daily measure and streaks | haiku | | | ready |
 | [T206](T206-events-schema.md) | Events schema validator | haiku | T201 | | ready |
 | T207 | Multi-event runner across exchanges and seasons | sonnet | T204, T206 | | needs-brief |
-| T208 | PSI file reader for the data.gov.sg bulk CSV | haiku | T205 | Network: data.gov.sg, to confirm the schema | waiting |
+| T208 | PSI file reader for the data.gov.sg bulk CSV | haiku | T205, T115 | Schema from T115 | needs-brief |
 | T209 | IDX price-limit day flags | sonnet | T204 | Verified 2015 to 2026 rule history | waiting |
 
 ### Phase 3: diffusion chain (only after G1 = go)
@@ -134,6 +135,7 @@ brief) · `done`
 | ID | Title | Tier | Depends | Needs | Status |
 | --- | --- | --- | --- | --- | --- |
 | T401 | Research-note skeleton wired to outputs | planner | T114 | | needs-brief |
+| T402 | Check every citation against Crossref and fix `docs/` references | sonnet | | Network: Crossref | needs-brief |
 
 ## Brief format
 
