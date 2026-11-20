@@ -3,6 +3,24 @@
 Newest entry first. One entry per run of the loop: date and time (UTC), tasks finished (with commit
 hashes), tasks blocked and why, and what the owner needs to do.
 
+## 2026-11-20 08:56 UTC run 2
+
+- Health check before changes: `make test` (32 passed) and `make lint` green.
+- Done: T105 Placebo p-values (`ff679b5a`, sonnet), T108 Volume fetch and cache (`1829693`, haiku),
+  T104 Portfolios in the pilot (`ec1095b`, sonnet, second pass). Suite is now 47 tests.
+- T104 brief defect: the spec contradicted two assertions in the existing
+  `test_short_history_firm_is_skipped_not_fatal` (written when the summary and `skipped` held
+  firms only). The coder stopped and reported it. The planner repaired the brief (`b98a3ca`): the
+  assertions are now scoped to firms and the total skip count is pinned at 8. **Owner: this
+  changed an existing test; check you agree it keeps the test's meaning.** The planner also had
+  the coder narrow a `(EventStudyError, ValueError)` catch to `EventStudyError`, as the brief says.
+- Review notes: T105 adds one test beyond the brief (`test_nans_dropped`); the null-uniformity
+  test uses seed 12345, and the coder reports seeds 0 to 29 also pass. T108 removed the unused
+  `CACHE_FILE` constant from `prices.py`. No network call was made; `make data` was not run.
+- Blocked or waiting: nothing new. Next in board order: T106, T107, T109.
+- Not checked: the GitHub Actions result for these pushes.
+- Owner actions still open: O1, O3, O4 (due 29 Nov), O6, O7, O8.
+
 ## 2026-11-20 07:54 UTC run 1
 
 - Health check before changes: `make test` (20 passed) and `make lint` green.
