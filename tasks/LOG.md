@@ -3,6 +3,24 @@
 Newest entry first. One entry per run of the loop: date and time (UTC), tasks finished (with commit
 hashes), tasks blocked and why, and what the owner needs to do.
 
+## 2026-11-21 00:53 UTC run 9: nothing to do, schedule paused
+
+- No owner commits since run 8; `tasks/DECISIONS.md` unchanged (G1 and G2 open); no tag
+  `prereg-v1`.
+- Health check: `make test` (194 passed) and `make lint` green. No code was changed.
+- No task could be picked: nothing is `ready`. No brief was written: T401 and T402 are the only
+  `needs-brief` rows, and both need the owner first (see run 7). Everything else is `waiting` on
+  G1, G2, or an owner input.
+- Per step 8 of the protocol, the schedule "haze-salience task loop" is paused after this entry.
+  It is disabled, not deleted.
+- **To restart the loop, the owner does one or more of these, then re-enables the schedule:**
+  1. Record G1 in `tasks/DECISIONS.md` (due 29 Nov). `go` opens T301, T302 and T305 (the latter
+     two need a brief; T302 also needs a FIRMS MAP_KEY and T305 a reachable concession download).
+  2. Say what T402 should produce, given that the files holding the citations are protected.
+  3. Say whether T401 should start before G1.
+  4. Supply the verified IDX price-limit rule history for T209.
+- Owner actions still open: O1, O3, O4, O7, O8; the two test changes flagged in runs 2 and 3.
+
 ## 2026-11-20 20:56 UTC run 8
 
 - No owner commits since run 7; `tasks/DECISIONS.md` unchanged (G1 and G2 open).
