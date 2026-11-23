@@ -58,10 +58,10 @@ data. A null result is reported as a result.
 | CPO control: FCPO CSV with soybean oil fallback, labelled in outputs | `data/cpo.py` | Done |
 | Calendar alignment across exchanges | `data/align.py` | Done |
 | Market-model event study with CAR and band | `events/market_model.py` | Done |
-| Pilot runner, figure, summary CSV | `events/pilot.py`, `events/plot.py`, `cli.py` | Done, not yet run on real data |
-| Small-sample inference for the pilot (forecast-error variance, portfolios, placebo p-values) | `events/` | Phase 1 tasks |
-| Multi-exchange, multi-season event runner | `events/`, `config/` | Phase 2 tasks |
-| PSI salience measure | `data/psi.py` | Phase 2 tasks |
+| Pilot runner, figure, summary CSV, report | `events/pilot.py`, `events/plot.py`, `events/report.py`, `cli.py` | Done. Run once on real data (20 Nov 2026) with the soybean-oil fallback control; the run with Bursa FCPO is still owed (O3) |
+| Small-sample inference for the pilot (forecast-error variance, portfolios, placebo p-values, abnormal volume) | `events/` | Done |
+| Multi-exchange, multi-season event runner | `events/runner.py`, `events/returns.py`, `events/season_ar.py`, `config/` | Done on synthetic data; no IDX prices fetched yet |
+| PSI salience measure and bulk-file reader | `data/psi.py` | Done on hand-built data; not yet run on the real file |
 | FIRMS loader, concession loader, spatial join, exposure panel | `data/`, `spatial/` | Phase 3, after the gate |
 | Panel regression, cumulative-effect test, wild-cluster bootstrap | `panel/` | Phase 3, after the gate |
 | Offline tests on synthetic data with planted effects | `tests/` | Ongoing: every task adds its own |
@@ -77,6 +77,7 @@ Work is split into small tasks (one commit each) on the [task board](../tasks/RE
 3. Add abnormal volume as a second, attention-flavoured outcome.
 4. Owner: verify the event dates and tickers; download the FCPO CSV.
 5. Run the pilot on real data and commit the outputs (needs network access to Yahoo Finance).
+   Done once on 20 Nov 2026 with the soybean-oil fallback; see `outputs/figures/pilot_report.md`.
 6. **Gate G1 (owner, by 29 Nov): go/no-go.**
 
 **Phase 2. Infrastructure both stories need (can start now).**
