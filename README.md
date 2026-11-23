@@ -15,7 +15,7 @@ Full research design: [`docs/design.md`](docs/design.md). Working plan: [`docs/P
 
 | Stage | What | Status |
 | --- | --- | --- |
-| 1 | Pilot event study: 5 SGX names around 5 Oct and 16 Oct 2026 | Code and tests done; awaiting real data run |
+| 1 | Pilot event study: 5 SGX names around 5 Oct and 16 Oct 2026 | Run once on real data (20 Nov 2026) with the soybean-oil fallback control: [report](outputs/figures/pilot_report.md). Event dates not yet verified; run with Bursa FCPO still owed |
 | 2 | Panel regression over the 2015, 2019, 2023, 2026 haze seasons | Pre-registration [drafted](docs/preregistration.md), not frozen |
 | 3 | Wind instrument for salience (ERA5) | Not started |
 
