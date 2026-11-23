@@ -3,6 +3,21 @@
 Newest entry first. One entry per run of the loop: date and time (UTC), tasks finished (with commit
 hashes), tasks blocked and why, and what the owner needs to do.
 
+## 2026-11-23 21:02 UTC interactive session (not a loop run)
+
+- The owner passed in a handover file from his resume session, with five requests for this repo.
+- Status wording updated in `docs/PROJECT_GUIDE.md` and in `README.md` (`d2c7c8e`): the pilot has
+  been run once on real data with the soybean-oil fallback. `README.md` is a protected path; it
+  was changed because the owner asked for it in this session, in a commit of its own so it can
+  be reverted alone. Only the Stage 1 status row changed.
+- `data/raw/manual/fcpo.csv` is not present in this container, so the pilot was not re-run and
+  nothing was substituted. O3 stays open.
+- New file `docs/interview_sheet.md`, for the owner. It quotes pilot figures from
+  `outputs/figures/pilot_report.md`.
+- Found while checking claims: `docs/design.md` and `docs/preregistration.md` state the sign of
+  H2 differently (both protected, owner to reconcile).
+- No code changed; no data fetched; the schedule stays paused.
+
 ## 2026-11-21 00:53 UTC run 9: nothing to do, schedule paused
 
 - No owner commits since run 8; `tasks/DECISIONS.md` unchanged (G1 and G2 open); no tag
